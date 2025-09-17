@@ -138,7 +138,10 @@ function WatchAnime() {
             <Link to="/" className="hover:text-pink-500 transition-colors">Home</Link>
             <span>•</span>
             <Link
-              to={`/anime/${animeData.anime?.slug}`}
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.back();
+              }}
               className="hover:text-pink-500 transition-colors"
             >
               {animeData.anime?.title || 'Anime'}

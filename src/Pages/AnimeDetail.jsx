@@ -162,8 +162,6 @@ function AnimeDetail() {
           <div className="text-sm flex items-center space-x-2">
             <Link to="/" className="hover:text-pink-500 transition-colors">Home</Link>
             <span>•</span>
-            <Link to="/tv" className="hover:text-pink-500 transition-colors">TV</Link>
-            <span>•</span>
             <span className="text-pink-500">{data.title}</span>
           </div>
         </div>
