@@ -133,7 +133,7 @@ function AnimeDetail() {
     <div className="min-h-screen bg-neutral-900 text-white">
       {/* Background Blur */}
       <div
-        className="absolute inset-0 bg-cover bg-center blur-xl opacity-30"
+        className="absolute inset-0 bg-cover bg-center blur-sm opacity-30"
         style={{ backgroundImage: `url(${data.poster})` }}
       ></div>
 
