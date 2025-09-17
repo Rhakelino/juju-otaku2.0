@@ -2,6 +2,84 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
+
+const AnimeDetailSkeleton = () => {
+  return (
+    <div className="min-h-screen bg-neutral-900 text-white animate-pulse">
+      {/* Navigasi Skeleton */}
+      <div className="relative z-10 px-4 pt-4 text-neutral-300">
+        <div className="container mx-auto flex items-center space-x-4">
+          <div className="w-6 h-6 bg-neutral-700 rounded-full"></div>
+          <div className="flex-grow h-4 bg-neutral-700 rounded w-1/2"></div>
+        </div>
+      </div>
+
+      {/* Konten Utama Skeleton */}
+      <div className="relative z-10 container mx-auto px-4 py-8 md:flex">
+        {/* Poster Skeleton */}
+        <div className="md:w-1/3 justify-center flex mb-6 md:mb-0 md:pr-8">
+          <div className="w-[250px] h-[350px] bg-neutral-700 rounded-lg"></div>
+        </div>
+
+        {/* Detail Informasi Skeleton */}
+        <div className="md:w-2/3">
+          <div className="h-10 bg-neutral-700 rounded w-3/4 mb-4"></div>
+
+          {/* Info Rating & Kategori Skeleton */}
+          <div className="flex space-x-4 mb-4">
+            <div className="w-16 h-6 bg-neutral-700 rounded"></div>
+            <div className="w-16 h-6 bg-neutral-700 rounded"></div>
+          </div>
+
+          {/* Tombol Aksi Skeleton */}
+          <div className="flex space-x-4 mb-6">
+            <div className="w-32 h-10 bg-neutral-700 rounded-full"></div>
+            <div className="w-32 h-10 bg-neutral-700 rounded-full"></div>
+          </div>
+
+          {/* Sinopsis Skeleton */}
+          <div className="space-y-2 mb-4">
+            <div className="h-4 bg-neutral-700 rounded w-full"></div>
+            <div className="h-4 bg-neutral-700 rounded w-3/4"></div>
+            <div className="h-4 bg-neutral-700 rounded w-1/2"></div>
+          </div>
+
+          {/* Informasi Tambahan Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="space-y-2">
+                <div className="h-4 bg-neutral-700 rounded w-2/3"></div>
+                <div className="h-4 bg-neutral-700 rounded w-full"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Episode List Skeleton */}
+      <div className="relative z-10 container mx-auto px-4 md:px-16 py-8">
+        <div className="h-8 bg-neutral-700 rounded w-1/4 mb-4"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, index) => (
+            <div 
+              key={index} 
+              className="bg-neutral-800 rounded-lg p-4 flex items-center space-x-4"
+            >
+              <div className="w-16 h-10 bg-neutral-700 rounded flex items-center justify-center">
+                <div className="w-10 h-4 bg-neutral-600 rounded"></div>
+              </div>
+              <div className="flex-grow">
+                <div className="h-4 bg-neutral-700 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-neutral-700 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function AnimeDetail() {
   const { slug } = useParams();
   const [animeData, setAnimeData] = useState(null);
@@ -37,9 +115,7 @@ function AnimeDetail() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-neutral-900">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500"></div>
-      </div>
+      <AnimeDetailSkeleton />
     );
   }
 
