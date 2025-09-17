@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body, html {
+  background-color: #171717; /* Sesuaikan dengan warna gelap di Tailwind */
+  min-height: 100vh;
+  color: white;
+}
+
+#root {
+  background-color: #171717;
+  min-height: 100vh;
+}
