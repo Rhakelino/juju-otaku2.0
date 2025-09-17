@@ -5,35 +5,49 @@ import axios from 'axios';
 // Skeleton Loading Component
 const WatchAnimeSkeleton = () => {
   return (
-    <div className="min-h-screen bg-neutral-900 text-white animate-pulse p-4">
-      <div className="container mx-auto">
-        {/* Judul Skeleton */}
-        <div className="h-8 bg-neutral-700 rounded w-3/4 mb-4"></div>
+    <div className="min-h-screen bg-neutral-900 text-white">
+      {/* Background Blur Skeleton */}
+      <div className="absolute inset-0 bg-neutral-800 blur-xl opacity-30"></div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Navigasi Kembali Skeleton */}
+        <div className="mb-4 flex items-center space-x-4">
+          <div className="h-6 w-6 bg-neutral-700 rounded-full"></div>
+          <div className="h-4 w-3/4 bg-neutral-700 rounded"></div>
+        </div>
+
+        {/* Judul Episode Skeleton */}
+        <div className="h-8 w-1/2 bg-neutral-700 rounded mb-4"></div>
 
         {/* Video Player Skeleton */}
-        <div className="relative pt-[56.25%] bg-neutral-800 rounded-lg mb-6">
+        <div className="w-full max-w-4xl mx-auto relative pt-[56.25%] bg-neutral-800 rounded-lg overflow-hidden mb-6">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-16 h-16 bg-neutral-700 rounded-full"></div>
           </div>
         </div>
 
-        {/* Navigation Skeleton */}
-        <div className="flex justify-between mb-6">
-          {[...Array(3)].map((_, index) => (
-            <div key={index} className="h-10 w-24 bg-neutral-700 rounded"></div>
-          ))}
+        {/* Episode Navigation Skeleton */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-10 w-24 bg-neutral-700 rounded"></div>
+          <div className="h-10 w-24 bg-neutral-700 rounded"></div>
         </div>
 
         {/* Download Links Skeleton */}
         <div className="bg-neutral-800 rounded-lg p-6">
-          <div className="h-6 bg-neutral-700 rounded w-1/2 mb-4"></div>
-          {[...Array(3)].map((_, index) => (
-            <div key={index} className="mb-4">
-              <div className="h-4 bg-neutral-700 rounded w-1/4 mb-2"></div>
+          {/* Judul Download Links */}
+          <div className="h-6 w-1/3 bg-neutral-700 rounded mb-4"></div>
+
+          {/* Quality Sections */}
+          {[1, 2, 3].map((section) => (
+            <div key={section} className="mb-4">
+              {/* Quality Title */}
+              <div className="h-5 w-1/4 bg-neutral-700 rounded mb-2"></div>
+              
+              {/* Download Buttons */}
               <div className="grid grid-cols-2 gap-4">
-                {[...Array(2)].map((_, btnIndex) => (
-                  <div
-                    key={btnIndex}
+                {[1, 2].map((btn) => (
+                  <div 
+                    key={btn} 
                     className="h-10 bg-neutral-700 rounded"
                   ></div>
                 ))}
@@ -45,7 +59,6 @@ const WatchAnimeSkeleton = () => {
     </div>
   );
 };
-
 function WatchAnime() {
   const { slug } = useParams();
   const [animeData, setAnimeData] = useState(null);
@@ -139,9 +152,9 @@ function WatchAnime() {
             <span>•</span>
             <Link
               onClick={(e) => {
-    e.preventDefault();
-    window.history.back();
-  }}
+                e.preventDefault();
+                window.history.back();
+              }}
               className="hover:text-pink-500 transition-colors"
             >
               {animeData.anime?.title || 'Anime'}

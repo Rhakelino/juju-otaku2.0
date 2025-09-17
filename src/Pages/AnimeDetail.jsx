@@ -282,7 +282,7 @@ function AnimeDetail() {
                   to={`/watch/${episodeSlug}`}
                   className="bg-neutral-800 rounded-lg p-4 flex items-center space-x-4 hover:bg-neutral-700 transition"
                 >
-                  <div className="w-16 h-10 bg-neutral-700 rounded flex items-center justify-center">
+                  <div className="w-24 h-10 bg-neutral-700 rounded flex items-center justify-center">
                     <span className="text-pink-500 font-bold">EP {episode.episode_number}</span>
                   </div>
                   <div>
