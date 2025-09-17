@@ -4,6 +4,7 @@ import Home from './Pages/Home';
 import AnimeDetail from './Pages/AnimeDetail';
 import WatchAnime from './Pages/WatchAnime';
 
+
 function App() {
   return (
     <Router>

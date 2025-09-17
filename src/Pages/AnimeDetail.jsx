@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 function AnimeDetail() {
@@ -76,13 +76,13 @@ function AnimeDetail() {
                 const episodeSlug = episodeUrl[episodeUrl.length - 1];
                 
                 return (
-                  <a
+                  <Link
                     key={index}
-                    href={`/watch/${episodeSlug}`}
+                    to={`/watch/${episodeSlug}`}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-center transition-colors"
                   >
                     {episode.episode}
-                  </a>
+                  </Link>
                 );
               })}
             </div>
@@ -95,14 +95,14 @@ function AnimeDetail() {
                 <span className="font-semibold">Duration:</span> {animeData.data?.duration || 'Unknown'}
               </p>
               {animeData.data?.batch && (
-                <a
-                  href={animeData.data.batch}
+                <Link
+                  to={animeData.data.batch}
                   className="inline-block mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   Download Batch
-                </a>
+                </Link>
               )}
             </div>
           </div>

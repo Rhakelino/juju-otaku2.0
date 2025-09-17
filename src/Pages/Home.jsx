@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function Home() {
     const [ongoingAnime, setOngoingAnime] = useState([]);
@@ -22,11 +23,11 @@ function Home() {
                 }
 
                 // Coba berbagai cara mengakses data complete anime
-                const completeAnimeData = 
-                    completeResponse.data?.completeAnimeData || 
-                    completeResponse.data?.data?.completeAnimeData || 
-                    completeResponse.data?.anime || 
-                    completeResponse.data?.data?.anime || 
+                const completeAnimeData =
+                    completeResponse.data?.completeAnimeData ||
+                    completeResponse.data?.data?.completeAnimeData ||
+                    completeResponse.data?.anime ||
+                    completeResponse.data?.data?.anime ||
                     [];
 
                 // Set Complete Anime
@@ -50,10 +51,10 @@ function Home() {
         try {
             setIsSearching(true);
             const response = await axios.get(`https://api.sankavollerei.com/anime/search/${searchQuery}`);
-            
+
             // Pastikan struktur response sesuai
             const results = response.data?.data || response.data || [];
-            
+
             setSearchResults(results);
             setIsSearching(false);
         } catch (err) {
@@ -74,41 +75,45 @@ function Home() {
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {animeList.map((anime) => (
-                        <div
+                        <Link
                             key={anime.slug}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-                            onClick={() => window.location.href = `/anime/${anime.slug}`}
+                            to={`/anime/${anime.slug}`}
                         >
-                            <div className="relative h-64">
-                                <img
-                                    src={anime.poster}
-                                    alt={anime.title}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = 'https://via.placeholder.com/300x400?text=No+Image';
-                                    }}
-                                />
-                                {anime.current_episode && (
-                                    <div className="absolute top-0 right-0 bg-blue-500 text-white px-2 py-1 m-2 rounded text-sm">
-                                        {anime.current_episode}
+                            <div
+                                key={anime.slug}
+                                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                            >
+                                <div className="relative h-64">
+                                    <img
+                                        src={anime.poster}
+                                        alt={anime.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://via.placeholder.com/300x400?text=No+Image';
+                                        }}
+                                    />
+                                    {anime.current_episode && (
+                                        <div className="absolute top-0 right-0 bg-blue-500 text-white px-2 py-1 m-2 rounded text-sm">
+                                            {anime.current_episode}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="p-4">
+                                    <h3 className="font-bold text-lg mb-2 line-clamp-2">
+                                        {anime.title}
+                                    </h3>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">
+                                            {anime.release_day || anime.type}
+                                        </span>
+                                        <span className="text-blue-500">
+                                            {anime.newest_release_date || anime.year}
+                                        </span>
                                     </div>
-                                )}
-                            </div>
-                            <div className="p-4">
-                                <h3 className="font-bold text-lg mb-2 line-clamp-2">
-                                    {anime.title}
-                                </h3>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">
-                                        {anime.release_day || anime.type}
-                                    </span>
-                                    <span className="text-blue-500">
-                                        {anime.newest_release_date || anime.year}
-                                    </span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             )}
@@ -138,8 +143,8 @@ function Home() {
             {/* Pencarian */}
             <div className="mb-8 flex justify-center">
                 <div className="w-full max-w-lg flex">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Cari anime..."
@@ -150,7 +155,7 @@ function Home() {
                             }
                         }}
                     />
-                    <button 
+                    <button
                         onClick={handleSearch}
                         disabled={isSearching}
                         className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 disabled:opacity-50"

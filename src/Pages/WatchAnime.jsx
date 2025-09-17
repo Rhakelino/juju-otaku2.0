@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 function WatchAnime() {
@@ -85,36 +85,36 @@ function WatchAnime() {
       <div className="flex justify-between items-center mb-6">
         <div>
           {animeData.has_previous_episode && animeData.previous_episode && (
-            <a
-              href={`/watch/${animeData.previous_episode.slug}`}
+            <Link
+              to={`/watch/${animeData.previous_episode.slug}`}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             >
               ← Episode Sebelumnya
-            </a>
+            </Link>
           )}
         </div>
         
         <div>
           {animeData.anime?.otakudesu_url && (
-            <a
-              href={animeData.anime.otakudesu_url}
+            <Link
+              onTouchCancelCapture={animeData.anime.otakudesu_url}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
               Info Anime
-            </a>
+            </Link>
           )}
         </div>
 
         <div>
           {animeData.has_next_episode && animeData.next_episode && (
-            <a
-              href={`/watch/${animeData.next_episode.slug}`}
+            <Link
+              to={`/watch/${animeData.next_episode.slug}`}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             >
               Episode Selanjutnya →
-            </a>
+            </Link>
           )}
         </div>
       </div>
@@ -132,15 +132,15 @@ function WatchAnime() {
                 <h3 className="font-semibold mb-2">{quality.resolution}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {quality.urls.map((uri, uriIndex) => (
-                    <a
+                    <Link
                       key={uriIndex}
-                      href={uri.url}
+                      to={uri.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-gray-100 hover:bg-gray-200 text-center py-2 px-4 rounded"
                     >
                       {uri.provider}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
