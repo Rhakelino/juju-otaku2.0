@@ -63,9 +63,32 @@ function AnimeDetail() {
 
       {/* Navigasi */}
       <div className="relative z-10 px-4 pt-4 text-neutral-300">
-        <div className="container mx-auto">
-          <div className="text-sm">
-            <span>Home</span> • <span>TV</span> • <span>{data.title}</span>
+        <div className="container mx-auto flex items-center space-x-4">
+          <button
+            onClick={() => window.history.back()}
+            className="text-white hover:text-pink-500 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+          </button>
+          <div className="text-sm flex items-center space-x-2">
+            <Link to="/" className="hover:text-pink-500 transition-colors">Home</Link>
+            <span>•</span>
+            <Link to="/tv" className="hover:text-pink-500 transition-colors">TV</Link>
+            <span>•</span>
+            <span className="text-pink-500">{data.title}</span>
           </div>
         </div>
       </div>
