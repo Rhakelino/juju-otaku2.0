@@ -19,10 +19,10 @@ const AnimeSkeleton = () => (
 const HomeLoading = () => (
     <div className="container mx-auto px-4 py-8 bg-neutral-900 min-h-screen">
         <div className="mb-8">            
-            <div className="mb-8 flex justify-center">
-                <div className="w-full max-w-lg flex">
+            <div className="mb-8 flex">
+                <div className="w-full max-w-lg flex ">
                     <div className="flex-grow h-10 bg-neutral-800 rounded-l-lg"></div>
-                    <div className="w-24 bg-neutral-700 rounded-r-lg"></div>
+                    <div className="w-24 bg-neutral-700  rounded-r-lg"></div>
                 </div>
             </div>
             {[1, 2].map((section) => (
@@ -137,7 +137,7 @@ function Home() {
                     Tidak ada anime ditemukan
                 </div>
             ) : (
-                <div className="md:mx-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <div className="md:mx-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5  gap-6">
                     {animeList.map((anime) => (
                         <Link
                             key={anime.slug}
@@ -197,10 +197,10 @@ function Home() {
 
     return (
     <div className="container mx-auto px-4 py-8 bg-neutral-900 min-h-screen text-white">
-        <h1 className="text-3xl font-bold mb-8 text-center text-white/90">Daftar Anime</h1>
+        <h1 className="text-3xl md:mx-16 text-left font-bold mb-8 text-white/90">Juju Otaku</h1>
         
-        <div className="mb-8 flex justify-center">
-            <div className="w-full max-w-lg flex">
+        <div className="mb-8 flex">
+            <div className="w-full md:mx-16 max-w-lg flex">
                 <input
                     type="text"
                     value={searchQuery}
