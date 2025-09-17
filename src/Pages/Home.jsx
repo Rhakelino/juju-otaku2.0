@@ -2,42 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import debounce from 'lodash/debounce'; // Pastikan install lodash
+import AnimeSkeleton from '../components/AnimeSkeleton';
+import HomeLoading from '../components/HomeLoading';
 
-const AnimeSkeleton = () => (
-    <div className="bg-neutral-800 rounded-lg animate-pulse">
-        <div className="h-64 bg-neutral-700"></div>
-        <div className="p-4">
-            <div className="h-4 bg-neutral-700 mb-2 w-3/4"></div>
-            <div className="flex justify-between">
-                <div className="h-3 bg-neutral-700 w-1/4"></div>
-                <div className="h-3 bg-neutral-700 w-1/4"></div>
-            </div>
-        </div>
-    </div>
-);
-
-const HomeLoading = () => (
-    <div className="container mx-auto px-4 py-8 bg-neutral-900 min-h-screen">
-        <div className="mb-8">            
-            <div className="mb-8 flex">
-                <div className="w-full max-w-lg flex ">
-                    <div className="flex-grow h-10 bg-neutral-800 rounded-l-lg"></div>
-                    <div className="w-24 bg-neutral-700  rounded-r-lg"></div>
-                </div>
-            </div>
-            {[1, 2].map((section) => (
-                <div key={section} className="mb-8">
-                    <div className="h-8 bg-neutral-800 w-1/3 mx-auto mb-4 rounded"></div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        {[1, 2, 3, 4, 5].map((skeleton) => (
-                            <AnimeSkeleton key={skeleton} />
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 function Home() {
     const [ongoingAnime, setOngoingAnime] = useState([]);
@@ -184,7 +151,7 @@ function Home() {
     );
 
     if (loading) {
-        return <HomeLoading />;
+        return <HomeLoading />; // Tampilkan loading state
     }
 
     if (error) {
