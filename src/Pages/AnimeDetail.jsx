@@ -64,8 +64,8 @@ function AnimeDetail() {
       {/* Navigasi */}
       <div className="relative z-10 px-4 pt-4 text-neutral-300">
         <div className="container mx-auto flex items-center space-x-4">
-          <button
-            onClick={() => window.history.back()}
+          <Link
+            to={"/"}
             className="text-white hover:text-pink-500 transition-colors"
           >
             <svg
@@ -82,7 +82,7 @@ function AnimeDetail() {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
             </svg>
-          </button>
+          </Link>
           <div className="text-sm flex items-center space-x-2">
             <Link to="/" className="hover:text-pink-500 transition-colors">Home</Link>
             <span>•</span>
@@ -189,6 +189,44 @@ function AnimeDetail() {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Episode List Section */}
+      <div className="relative z-10 container mx-auto px-4 md:px-16 py-8">
+        <h2 className="text-2xl font-bold mb-4">Episodes</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data.episode_lists && data.episode_lists.length > 0 ? (
+            data.episode_lists.map((episode, index) => {
+              // Extract episode slug from the full slug
+              const episodeUrl = episode.slug.split('/');
+              const episodeSlug = episodeUrl[episodeUrl.length - 1];
+
+              return (
+                <Link
+                  key={index}
+                  to={`/watch/${episodeSlug}`}
+                  className="bg-neutral-800 rounded-lg p-4 flex items-center space-x-4 hover:bg-neutral-700 transition"
+                >
+                  <div className="w-16 h-10 bg-neutral-700 rounded flex items-center justify-center">
+                    <span className="text-pink-500 font-bold">EP {episode.episode_number}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold line-clamp-1">
+                      {episode.episode || `Episode ${episode.episode_number}`}
+                    </h3>
+                    <p className="text-xs text-neutral-400">
+                      {data.duration || 'Unknown duration'}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })
+          ) : (
+            <div className="col-span-full text-center text-neutral-400">
+              No episodes available
+            </div>
+          )}
         </div>
       </div>
     </div>
