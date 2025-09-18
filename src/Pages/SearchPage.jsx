@@ -55,7 +55,7 @@ function SearchPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 bg-neutral-900 min-h-screen text-white">
+        <div className="container mx-auto px-4 py-8 bg-[#1A1A29] min-h-screen text-white">
             {/* Header */}
             <div className="mb-8">
                 <Link 
@@ -123,7 +123,7 @@ function SearchPage() {
                                         key={anime.slug}
                                         to={`/anime/${anime.slug}`}
                                     >
-                                        <div className="bg-neutral-800 rounded-lg h-full shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-neutral-700">
+                                        <div className="bg-[#1A1A29] rounded-lg h-full shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-neutral-700">
                                             <div className="relative h-64">
                                                 <img
                                                     src={anime.poster}

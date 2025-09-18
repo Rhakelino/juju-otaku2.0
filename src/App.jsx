@@ -5,6 +5,8 @@ import { store } from './redux/store'; // Sesuaikan path ke store Anda
 
 import Home from './Pages/Home';
 import SearchPage from './Pages/SearchPage';
+import GenrePage from './Pages/GenrePage';
+import SchedulePage from './Pages/SchedulePage';
 import AnimeDetail from './Pages/AnimeDetail';
 import WatchAnime from './Pages/WatchAnime';
 import AnimeDownload from './Pages/AnimeDownload';
@@ -32,6 +34,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/genre/:slug" element={<GenrePage />} />
+          <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/anime/:slug" element={<AnimeDetail />} />
           <Route path="/watch/:slug" element={<WatchAnime />} />
           <Route path="/anime-download/:batchSlug" element={<AnimeDownload />} />
