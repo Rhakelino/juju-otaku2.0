@@ -39,6 +39,7 @@ function WatchAnime() {
 
         const sortedEpisodes = episodesData.sort((a, b) => parseInt(a.title) - parseInt(b.title));
         setAnimeData(data);
+        console.log('Fetched Anime Data:', data);
         setEpisodeList(sortedEpisodes);
 
         if (data?.stream_servers?.qualities) {
@@ -156,16 +157,18 @@ function WatchAnime() {
 
       {/* Mobile View */}
       <div className="lg:hidden">
-        <BackNavigation 
-          animeData={animeData} 
-          episode={animeData.episode} 
+        <BackNavigation
+          animeData={animeData}
+          episode={animeData.episode}
         />
 
         <div className="relative">
-          <VideoPlayer 
-            streamingUrl={streamingUrl} 
-            animeData={animeData} 
+          <VideoPlayer
+            streamingUrl={streamingUrl}
+            animeData={animeData}
           />
+
+          <p className="text-neutral-400 px-4 pt-4">{animeData.episode}</p>
 
           <ResolutionServerSelector
             filteredQualities={filteredQualities}
@@ -175,36 +178,36 @@ function WatchAnime() {
             handleServerChange={handleServerChange}
           />
 
-          <h1 className="text-lg font-bold px-4">{animeData.anime?.title}</h1>
-          <p className="text-neutral-400 px-4">{animeData.episode}</p>
-
-          <EpisodeList 
-            episodeList={episodeList} 
+          <EpisodeList
+            episodeList={episodeList}
             slug={slug}
             showEpisodeList={showEpisodeList}
             setShowEpisodeList={setShowEpisodeList}
           />
 
-          <DownloadLinks 
-            downloadUrls={animeData.download_urls} 
+          <DownloadLinks
+            downloadUrls={animeData.download_urls}
           />
         </div>
       </div>
 
       {/* Desktop View */}
       <div className="hidden lg:block container mx-auto px-4 py-8">
-        <BackNavigation 
-          animeData={animeData} 
-          episode={animeData.episode} 
+        <BackNavigation
+          animeData={animeData}
+          episode={animeData.episode}
         />
 
         <div className="flex space-x-4">
           <div className="w-3/4">
-            <VideoPlayer 
-              streamingUrl={streamingUrl} 
-              animeData={animeData} 
-              isDesktop={true} 
+            <VideoPlayer
+              streamingUrl={streamingUrl}
+              animeData={animeData}
+              isDesktop={true}
             />
+
+            
+          <h1 className="text-neutral-400 px-4 text-lg pt-4">{animeData.episode}</h1>
 
             <ResolutionServerSelector
               filteredQualities={filteredQualities}
@@ -232,9 +235,9 @@ function WatchAnime() {
           </div>
         </div>
 
-        <DownloadLinks 
-          downloadUrls={animeData.download_urls} 
-          isDesktop={true} 
+        <DownloadLinks
+          downloadUrls={animeData.download_urls}
+          isDesktop={true}
         />
       </div>
     </div>
