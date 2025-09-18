@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAnimeDetail } from '../redux/animeDetailSlice';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const AnimeDetailSkeleton = () => {
   return (
@@ -61,8 +60,8 @@ const AnimeDetailSkeleton = () => {
         <div className="h-8 bg-neutral-700 rounded w-1/4 mb-4"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="bg-neutral-800 rounded-lg p-4 flex items-center space-x-4"
             >
               <div className="w-16 h-10 bg-neutral-700 rounded flex items-center justify-center">
@@ -82,12 +81,81 @@ const AnimeDetailSkeleton = () => {
 
 function AnimeDetail() {
   const { slug } = useParams();
-  const dispatch = useDispatch();
-  const { data, loading, error, firstEpisodeSlug } = useSelector((state) => state.animeDetail);
+  const [animeData, setAnimeData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [firstEpisodeSlug, setFirstEpisodeSlug] = useState(null);
+  const navigate = useNavigate();
+
+
 
   useEffect(() => {
-    dispatch(fetchAnimeDetail(slug));
-  }, [dispatch, slug]);
+    const fetchAnimeDetail = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`https://api.sankavollerei.com/anime/anime/${slug}`);
+
+        setAnimeData(response.data.data);
+
+
+        // Ekstrak slug episode pertama
+        if (response.data.data?.episode_lists && response.data.data.episode_lists.length > 0) {
+          const firstEpisode = response.data.data.episode_lists[0];
+          const episodeUrl = firstEpisode.slug.split('/');
+          setFirstEpisodeSlug(episodeUrl[episodeUrl.length - 1]);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data || 'Gagal memuat detail anime');
+        setLoading(false);
+      }
+    };
+
+    fetchAnimeDetail();
+  }, [slug]);
+
+
+  const handleBatchDownload = async (batchSlug) => {
+    if (!batchSlug) return;
+    try {
+      const response = await axios.get(`https://api.sankavollerei.com/anime/batch/${batchSlug}`);
+
+      // Ambil semua kualitas dan server dari endpoint
+      const qualities = response.data.data.downloadUrl.formats?.[0]?.qualities || [];
+
+      // Navigasi ke halaman download dengan membawa data
+      navigate('/anime-download/' + batchSlug, {
+        state: {
+          qualities: qualities,
+          animeTitle: animeData.title // Tambahan info anime
+        }
+      });
+    } catch (error) {
+      console.error('Gagal mengunduh batch:', error);
+      alert('Gagal mengunduh batch: ' + error.message);
+    }
+  };
+
+  const isOngoing = (status) => {
+    if (!status || typeof status !== 'string') return false;
+    return /ongoing|on-going|currently airing/i.test(status);
+  };
+
+  const handleAddToWishlist = () => {
+    try {
+      const key = 'wishlist';
+      const current = JSON.parse(localStorage.getItem(key) || '[]');
+      const exists = current.some((item) => item.slug === slug);
+      if (!exists) {
+        current.push({ slug, title: animeData?.title, poster: animeData?.poster });
+        localStorage.setItem(key, JSON.stringify(current));
+      }
+      alert('Ditambahkan ke wishlist');
+    } catch (e) {
+      console.error('Gagal menambahkan ke wishlist', e);
+    }
+  };
 
   if (loading) {
     return <AnimeDetailSkeleton />;
@@ -100,8 +168,6 @@ function AnimeDetail() {
       </div>
     );
   }
-
-  const animeData = data?.data || {};
 
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
@@ -184,9 +250,23 @@ function AnimeDetail() {
                 No Episodes Available
               </button>
             )}
-            <button className="border border-neutral-600 text-white px-6 py-2 rounded-full hover:bg-neutral-800 transition">
-              + Add to Watchlist
-            </button>
+            {isOngoing(animeData.status) ? (
+              <button
+                onClick={handleAddToWishlist}
+                className="bg-neutral-700 text-white px-6 py-2 rounded-full hover:bg-neutral-600"
+              >
+                Add to Wishlist
+              </button>
+            ) : (
+              animeData.batch?.slug ? (
+                <button
+                  onClick={() => handleBatchDownload(animeData.batch.slug)}
+                  className="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700"
+                >
+                  Download Batch
+                </button>
+              ) : null
+            )}
           </div>
 
           {/* Sinopsis */}

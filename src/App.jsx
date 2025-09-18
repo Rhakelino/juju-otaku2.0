@@ -6,6 +6,7 @@ import { store } from './redux/store'; // Sesuaikan path ke store Anda
 import Home from './Pages/Home';
 import AnimeDetail from './Pages/AnimeDetail';
 import WatchAnime from './Pages/WatchAnime';
+import AnimeDownload from './Pages/AnimeDownload';
 
 // Komponen ScrollToTop
 const ScrollToTop = () => {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/anime/:slug" element={<AnimeDetail />} />
           <Route path="/watch/:slug" element={<WatchAnime />} />
+          <Route path="/anime-download/:batchSlug" element={<AnimeDownload />} />
         </Routes>
       </Router>
     </Provider>
