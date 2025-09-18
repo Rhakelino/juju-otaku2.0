@@ -1,12 +1,13 @@
 import React from 'react';
 
 const DownloadLinks = ({ downloadUrls }) => {
-  if (!downloadUrls?.mp4) return null;
+  if (!downloadUrls?.mkv) return null;
 
+  console.log('Download URLs:', downloadUrls);
   return (
     <div className="bg-neutral-800 rounded-lg m-4 p-4">
       <h2 className="text-lg font-bold mb-4">Download Links</h2>
-      {downloadUrls.mp4.map((quality, index) => (
+      {downloadUrls.mkv.map((quality, index) => (
         <div key={index} className="mb-4">
           <h3 className="font-semibold text-neutral-300 mb-2">{quality.resolution}</h3>
           <div className="grid grid-cols-2 gap-2">
