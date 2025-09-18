@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAnimeDetail } from '../redux/animeDetailSlice';
 
 const AnimeDetailSkeleton = () => {
   return (
@@ -82,41 +82,15 @@ const AnimeDetailSkeleton = () => {
 
 function AnimeDetail() {
   const { slug } = useParams();
-  const [animeData, setAnimeData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [firstEpisodeSlug, setFirstEpisodeSlug] = useState(null);
+  const dispatch = useDispatch();
+  const { data, loading, error, firstEpisodeSlug } = useSelector((state) => state.animeDetail);
 
   useEffect(() => {
-    const fetchAnimeDetails = async () => {
-      try {
-        const response = await axios.get(`https://api.sankavollerei.com/anime/anime/${slug}`);
-        if (response.data) {
-          setAnimeData(response.data);
-
-          // Ekstrak slug episode pertama
-          if (response.data.data?.episode_lists && response.data.data.episode_lists.length > 0) {
-            const firstEpisode = response.data.data.episode_lists[0];
-            const episodeUrl = firstEpisode.slug.split('/');
-            const episodeSlug = episodeUrl[episodeUrl.length - 1];
-            setFirstEpisodeSlug(episodeSlug);
-          }
-        }
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching anime details:', err);
-        setError('Gagal memuat detail anime');
-        setLoading(false);
-      }
-    };
-
-    fetchAnimeDetails();
-  }, [slug]);
+    dispatch(fetchAnimeDetail(slug));
+  }, [dispatch, slug]);
 
   if (loading) {
-    return (
-      <AnimeDetailSkeleton />
-    );
+    return <AnimeDetailSkeleton />;
   }
 
   if (error) {
@@ -127,14 +101,14 @@ function AnimeDetail() {
     );
   }
 
-  const data = animeData.data || {};
+  const animeData = data?.data || {};
 
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
       {/* Background Blur */}
       <div
         className="absolute inset-0 bg-cover bg-center blur-sm opacity-30"
-        style={{ backgroundImage: `url(${data.poster})` }}
+        style={{ backgroundImage: `url(${animeData.poster})` }}
       ></div>
 
       {/* Navigasi */}
@@ -162,7 +136,7 @@ function AnimeDetail() {
           <div className="text-sm flex items-center space-x-2">
             <Link to="/" className="hover:text-pink-500 transition-colors">Home</Link>
             <span>•</span>
-            <span className="text-pink-500">{data.title}</span>
+            <span className="text-pink-500">{animeData.title}</span>
           </div>
         </div>
       </div>
@@ -172,8 +146,8 @@ function AnimeDetail() {
         {/* Poster */}
         <div className="md:w-1/3 justify-center flex mb-6 md:mb-0 md:pr-8">
           <img
-            src={data.poster}
-            alt={data.title}
+            src={animeData.poster}
+            alt={animeData.title}
             className="w-[250px] h-[350px] object-cover rounded-lg shadow-xl"
             onError={(e) => {
               e.target.onerror = null;
@@ -184,7 +158,7 @@ function AnimeDetail() {
 
         {/* Detail Informasi */}
         <div className="md:w-2/3">
-          <h1 className="text-4xl font-bold mb-4">{data.title}</h1>
+          <h1 className="text-4xl font-bold mb-4">{animeData.title}</h1>
 
           {/* Info Rating & Kategori */}
           <div className="flex items-center space-x-4 mb-4">
@@ -217,7 +191,7 @@ function AnimeDetail() {
 
           {/* Sinopsis */}
           <p className="text-neutral-300 mb-4 line-clamp-3">
-            {data.synopsis || 'Tidak ada sinopsis tersedia.'}
+            {animeData.synopsis || 'Tidak ada sinopsis tersedia.'}
             <span className="text-pink-500 cursor-pointer ml-2">More</span>
           </p>
 
@@ -225,27 +199,27 @@ function AnimeDetail() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-neutral-400">
             <div>
               <span className="font-semibold text-white block">Japanese</span>
-              {data.japanese_title || 'N/A'}
+              {animeData.japanese_title || 'N/A'}
             </div>
             <div>
               <span className="font-semibold text-white block">Synonyms</span>
-              {data.synonyms || 'N/A'}
+              {animeData.synonyms || 'N/A'}
             </div>
             <div>
               <span className="font-semibold text-white block">Aired</span>
-              {data.aired || 'N/A'}
+              {animeData.aired || 'N/A'}
             </div>
             <div>
               <span className="font-semibold text-white block">Premiered</span>
-              {data.premiered || 'N/A'}
+              {animeData.premiered || 'N/A'}
             </div>
             <div>
               <span className="font-semibold text-white block">Duration</span>
-              {data.duration || 'N/A'}
+              {animeData.duration || 'N/A'}
             </div>
             <div>
               <span className="font-semibold text-white block">Status</span>
-              {data.status || 'N/A'}
+              {animeData.status || 'N/A'}
             </div>
           </div>
 
@@ -253,7 +227,7 @@ function AnimeDetail() {
           <div className="mt-4">
             <span className="font-semibold text-white block mb-2">Genres</span>
             <div className="flex flex-wrap gap-2">
-              {data.genres?.map((genre, index) => (
+              {animeData.genres?.map((genre, index) => (
                 <span
                   key={index}
                   className="bg-neutral-800 text-neutral-300 px-3 py-1 rounded-full text-sm"
@@ -270,8 +244,8 @@ function AnimeDetail() {
       <div className="relative z-10 container mx-auto px-4 md:px-16 py-8">
         <h2 className="text-2xl font-bold mb-4">Episodes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.episode_lists && data.episode_lists.length > 0 ? (
-            data.episode_lists.map((episode, index) => {
+          {animeData.episode_lists && animeData.episode_lists.length > 0 ? (
+            animeData.episode_lists.map((episode, index) => {
               // Extract episode slug from the full slug
               const episodeUrl = episode.slug.split('/');
               const episodeSlug = episodeUrl[episodeUrl.length - 1];
@@ -290,7 +264,7 @@ function AnimeDetail() {
                       {episode.episode || `Episode ${episode.episode_number}`}
                     </h3>
                     <p className="text-xs text-neutral-400">
-                      {data.duration || 'Unknown duration'}
+                      {animeData.duration || 'Unknown duration'}
                     </p>
                   </div>
                 </Link>
