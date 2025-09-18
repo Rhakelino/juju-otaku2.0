@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'; // Tambahkan import ini
 import { store } from './redux/store'; // Sesuaikan path ke store Anda
 
 import Home from './Pages/Home';
+import SearchPage from './Pages/SearchPage';
 import AnimeDetail from './Pages/AnimeDetail';
 import WatchAnime from './Pages/WatchAnime';
 import AnimeDownload from './Pages/AnimeDownload';
@@ -30,6 +31,7 @@ function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/anime/:slug" element={<AnimeDetail />} />
           <Route path="/watch/:slug" element={<WatchAnime />} />
           <Route path="/anime-download/:batchSlug" element={<AnimeDownload />} />
