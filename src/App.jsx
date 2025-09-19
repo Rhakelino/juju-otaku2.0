@@ -26,7 +26,49 @@ const ScrollToTop = () => {
   return null;
 };
 
+function usePreventSelection() {
+  useEffect(() => {
+    const preventSelection = (e) => {
+      e.preventDefault();
+    };
+
+    // Berbagai event untuk mencegah seleksi
+    document.addEventListener('selectstart', preventSelection);
+    document.addEventListener('contextmenu', preventSelection);
+
+    // Mencegah copy
+    document.addEventListener('copy', preventSelection);
+
+    // Mencegah cut
+    document.addEventListener('cut', preventSelection);
+
+    // Mencegah drag
+    document.addEventListener('dragstart', preventSelection);
+
+    return () => {
+      document.removeEventListener('selectstart', preventSelection);
+      document.removeEventListener('contextmenu', preventSelection);
+      document.removeEventListener('copy', preventSelection);
+      document.removeEventListener('cut', preventSelection);
+      document.removeEventListener('dragstart', preventSelection);
+    };
+  }, []);
+}
+
+function usePreventCursorChange() {
+  useEffect(() => {
+    document.body.style.cursor = 'default';
+    
+    return () => {
+      document.body.style.cursor = 'auto'; // Kembalikan ke default saat komponen di-unmount
+    };
+  }, []);
+}
+
+
 function App() {
+  usePreventSelection();
+  usePreventCursorChange();
   return (
     <Provider store={store}> {/* Tambahkan Provider di sini */}
       <Router>
