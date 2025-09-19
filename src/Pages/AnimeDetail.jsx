@@ -88,6 +88,13 @@ function AnimeDetail() {
   const [firstEpisodeSlug, setFirstEpisodeSlug] = useState(null);
   const navigate = useNavigate();
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Fungsi untuk toggle tampilan sinopsis
+  const toggleSynopsis = () => {
+    setIsExpanded(!isExpanded);
+  };
+
 
 
   useEffect(() => {
@@ -271,28 +278,43 @@ function AnimeDetail() {
           </div>
 
           {/* Sinopsis */}
-          <p className="text-neutral-300 mb-4 line-clamp-3">
-            {animeData.synopsis || 'Tidak ada sinopsis tersedia.'}
-            <span className="text-pink-500 cursor-pointer ml-2">More</span>
-          </p>
+          <div className='flex flex-col mb-4 overflow-hidden'>
+            <p className={`text-neutral-300 ${isExpanded ? 'line-clamp-none' : 'line-clamp-3'}`}>
+              {animeData.synopsis || 'Tidak ada sinopsis tersedia.'}
+
+            </p>
+              {animeData.synopsis && animeData.synopsis.length > 100 && (
+                <span
+                  className="text-pink-500 cursor-pointer"
+                  onClick={toggleSynopsis}
+                >
+                  {isExpanded ? 'Tutup' : 'Baca Selengkapnya'}
+                </span>
+              )}
+          </div>
 
           {/* Informasi Tambahan */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-neutral-400">
+
             <div>
               <span className="font-semibold text-white block">Japanese</span>
               {animeData.japanese_title || 'N/A'}
             </div>
             <div>
-              <span className="font-semibold text-white block">Synonyms</span>
-              {animeData.synonyms || 'N/A'}
+              <span className="font-semibold text-white block">Produser</span>
+              {animeData.produser || 'N/A'}
             </div>
             <div>
-              <span className="font-semibold text-white block">Aired</span>
-              {animeData.aired || 'N/A'}
+              <span className="font-semibold text-white block">Rating</span>
+              {animeData.rating || 'N/A'}
             </div>
             <div>
-              <span className="font-semibold text-white block">Premiered</span>
-              {animeData.premiered || 'N/A'}
+              <span className="font-semibold text-white block">Release Date</span>
+              {animeData.release_date || 'N/A'}
+            </div>
+            <div>
+              <span className="font-semibold text-white block">Studio</span>
+              {animeData.studio || 'N/A'}
             </div>
             <div>
               <span className="font-semibold text-white block">Duration</span>
