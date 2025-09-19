@@ -200,7 +200,7 @@ function Home() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
                             </button>
-                            <Link to={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-white px-6 py-2 md:py-3 rounded-full">
+                            <Link to={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 md:py-3 rounded-full">
                                 Donate JujuOtaku
                             </Link>
                         </div>
