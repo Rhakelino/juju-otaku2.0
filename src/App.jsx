@@ -10,6 +10,7 @@ import SchedulePage from './Pages/SchedulePage';
 import AnimeDetail from './Pages/AnimeDetail';
 import WatchAnime from './Pages/WatchAnime';
 import AnimeDownload from './Pages/AnimeDownload';
+import GenresPage from './Pages/GenresPage';
 
 // Komponen ScrollToTop
 const ScrollToTop = () => {
@@ -81,6 +82,7 @@ function App() {
           <Route path="/anime/:slug" element={<AnimeDetail />} />
           <Route path="/watch/:slug" element={<WatchAnime />} />
           <Route path="/anime-download/:batchSlug" element={<AnimeDownload />} />
+          <Route path="/genres" element={<GenresPage />} />
         </Routes>
       </Router>
     </Provider>

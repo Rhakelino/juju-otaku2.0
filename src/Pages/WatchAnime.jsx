@@ -35,6 +35,38 @@ function WatchAnime() {
     dispatch(fetchEpisodeDetails(slug));
   }, [dispatch, slug]);
 
+
+  useEffect(() => {
+    const saveWatchHistory = () => {
+      if (data && data.anime) {
+        const newWatchHistoryItem = {
+          slug,
+          animeName: data.anime.title,
+          episodeName: data.episode,
+          poster: data.anime.poster,
+          timestamp: Date.now()
+        };
+
+        // Ambil riwayat tontonan yang sudah ada
+        const existingHistory = JSON.parse(localStorage.getItem('animeWatchHistory') || '[]');
+
+        // Hapus duplikat jika sudah ada
+        const filteredHistory = existingHistory.filter(item => item.slug !== slug);
+
+        // Tambahkan item baru dan batasi jumlah riwayat
+        const updatedHistory = [newWatchHistoryItem, ...filteredHistory].slice(0, 10);
+
+        // Simpan ke local storage
+        localStorage.setItem('animeWatchHistory', JSON.stringify(updatedHistory));
+      }
+    };
+
+    // Panggil fungsi saveWatchHistory saat data tersedia
+    if (data) {
+      saveWatchHistory();
+    }
+  }, [data, slug]);
+
   useEffect(() => {
     if (filteredQualities.length > 0) {
       dispatch(fetchStreamingUrl({

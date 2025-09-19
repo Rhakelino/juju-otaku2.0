@@ -22,12 +22,20 @@ function Home() {
     const [schedule, setSchedule] = useState({});
     const [loadingGenres, setLoadingGenres] = useState(true);
     const [loadingSchedule, setLoadingSchedule] = useState(true);
+    const [watchHistory, setWatchHistory] = useState([]);
+    const [showWatchHistory, setShowWatchHistory] = useState(false);
 
     // Fetch initial data
     useEffect(() => {
         dispatch(fetchHomeAnime());
         dispatch(fetchCompleteAnime());
     }, [dispatch]);
+
+    // Fetch watch history
+    useEffect(() => {
+        const savedHistory = JSON.parse(localStorage.getItem('animeWatchHistory') || '[]');
+        setWatchHistory(savedHistory);
+    }, []);
 
     // Fetch genres
     useEffect(() => {
@@ -47,22 +55,22 @@ function Home() {
         fetchGenres();
     }, []);
 
-    const ongoingAnimeRef = useRef(null);  
+    const ongoingAnimeRef = useRef(null);
 
-    const scrollToOngoingAnime = () => {  
-        if (ongoingAnimeRef.current) {  
+    const scrollToOngoingAnime = () => {
+        if (ongoingAnimeRef.current) {
             // More precise scrolling with offset  
             const yOffset = 800; // Adjust based on your header/navigation height  
-            const element = ongoingAnimeRef.current;  
-            const y = element.getBoundingClientRect().top +   
-                      window.pageYOffset +   
-                      yOffset;  
-            
-            window.scrollTo({  
-                top: y,  
-                behavior: 'smooth'  
-            });  
-        }  
+            const element = ongoingAnimeRef.current;
+            const y = element.getBoundingClientRect().top +
+                window.pageYOffset +
+                yOffset;
+
+            window.scrollTo({
+                top: y,
+                behavior: 'smooth'
+            });
+        }
     };
 
     // Fetch schedule
@@ -80,6 +88,119 @@ function Home() {
         fetchSchedule();
     }, []);
 
+    // Watch History Modal Component
+    const WatchHistoryModal = () => {
+        const [watchHistory, setWatchHistory] = useState(() => {
+            const storedHistory = localStorage.getItem('animeWatchHistory');
+            return storedHistory ? JSON.parse(storedHistory) : [];
+        });
+
+        const handleRemoveHistoryItem = (slugToRemove) => {
+            // Filter out the item with the matching slug
+            const updatedHistory = watchHistory.filter(item => item.slug !== slugToRemove);
+
+            // Update state
+            setWatchHistory(updatedHistory);
+
+            // Update localStorage
+            localStorage.setItem('animeWatchHistory', JSON.stringify(updatedHistory));
+        };
+
+        if (!showWatchHistory) return null;
+
+        return (
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                <div className="bg-[#1E1E2E] rounded-3xl w-full max-w-4xl max-h-[80vh] overflow-y-auto shadow-2xl">
+                    <div className="flex justify-between items-center p-6 border-b border-neutral-700">
+                        <h2 className="text-2xl font-bold text-white">Riwayat Tontonan Terakhir</h2>
+                        <button
+                            onClick={() => setShowWatchHistory(false)}
+                            className="text-neutral-400 hover:text-white transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {watchHistory.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="w-16 h-16 bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <p className="text-neutral-400 text-lg">Belum ada riwayat tontonan</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                            {watchHistory.map((historyItem) => (
+                                <div
+                                    key={historyItem.slug}
+                                    className="relative group"
+                                >
+                                    <Link
+                                        to={`/watch/${historyItem.slug}`}
+                                        className="block"
+                                        onClick={() => setShowWatchHistory(false)}
+                                    >
+                                        <div className="bg-[#252736] rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border border-neutral-600/30 hover:border-pink-500/30 transform hover:-translate-y-2">
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h3 className="font-bold text-base line-clamp-2 text-white/90 flex-grow pr-2">
+                                                        {historyItem.animeName}
+                                                    </h3>
+                                                    <div className="bg-pink-600/20 text-pink-400 px-2 py-1 rounded-md text-xs">
+                                                        Lanjutkan
+                                                    </div>
+                                                </div>
+                                                <p className="text-sm text-neutral-400 mb-2">
+                                                    {historyItem.episodeName}
+                                                </p>
+                                                <div className="w-full bg-neutral-700 h-1 rounded-full mt-2">
+                                                    <div
+                                                        className="bg-pink-500 h-1 rounded-full"
+                                                        style={{ width: `${historyItem.progress || 0}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Link>
+
+                                    {/* Tombol Hapus */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault(); // Mencegah navigasi
+                                            handleRemoveHistoryItem(historyItem.slug);
+                                        }}
+                                        className="absolute top-2 right-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-full p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-4 w-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
+                                        </svg>
+                                    </button>
+
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    // AnimeSection Component
     const AnimeSection = ({ title, animeList }) => (
         <div className="mb-12">
             <div className="text-center mb-8">
@@ -148,10 +269,12 @@ function Home() {
         </div>
     );
 
+    // Render loading state
     if (loading.home) {
         return <HomeLoading />;
     }
 
+    // Render error state
     if (error.home) {
         return (
             <div className="flex justify-center items-center min-h-screen text-red-500 bg-neutral-900">
@@ -160,6 +283,7 @@ function Home() {
         );
     }
 
+    // Lanjutkan di pesan selanjutnya...
     return (
         <div className="min-h-screen bg-[#1A1A29] text-white md:px-16">
             {/* Hero Section */}
@@ -192,7 +316,7 @@ function Home() {
                         {/* Buttons */}
                         <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4 relative z-20">
                             <button
-                               onClick={scrollToOngoingAnime}
+                                onClick={scrollToOngoingAnime}
                                 className="bg-pink-500 text-white px-6 py-2 md:py-3 rounded-full flex items-center justify-center"
                             >
                                 Watch anime
@@ -200,6 +324,9 @@ function Home() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
                             </button>
+
+
+
                             <Link to={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 md:py-3 rounded-full">
                                 Donate JujuOtaku
                             </Link>
@@ -221,6 +348,20 @@ function Home() {
             </div>
 
             <div className="container mx-auto px-4 py-8">
+                {/* Tombol Riwayat Tontonan */}
+                {watchHistory.length > 0 && (
+                    <div className="flex items-center justify-end pb-8">
+                        <button
+                            onClick={() => setShowWatchHistory(true)}
+                            className="bg-blue-500 text-white px-6 flex items-center py-2 md:py-3 rounded-full "
+                        >
+                            Riwayat Tontonan
+                            <svg className="w-4 h-4 md:w-5 md:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
                 {/* Genre Section */}
                 <div className="mb-12">
                     <div className="flex justify-between items-center mb-8">
@@ -345,6 +486,9 @@ function Home() {
                     animeList={completeAnime}
                 />
             </div>
+
+            {/* Tambahkan komponen modal */}
+            <WatchHistoryModal />
         </div>
     );
 }
