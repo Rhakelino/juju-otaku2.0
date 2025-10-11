@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
+    "jsx": "react", 
+    "module": "esnext", // Memastikan penafsiran modul modern
+    "moduleResolution": "node",
+    "target": "es2020",
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "exclude": ["node_modules"]
 }
