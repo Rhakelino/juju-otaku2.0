@@ -58,7 +58,7 @@ const HeroSection = () => {
             src="/images/rem.gif"
             alt="Anime Character"
             className="absolute inset-0 w-full h-full object-cover"
-            priority
+            priority={true}
           />
         </div>
       </div>

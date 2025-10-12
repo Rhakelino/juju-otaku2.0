@@ -1,25 +1,50 @@
-import React from 'react'
+'use client'; // <-- Komponen ini interaktif, jadi harus 'use client'
 
-const SearchInput = () => {
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+
+export default function SearchInput() {
+  const [keyword, setKeyword] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e) => {
+    // Mencegah form me-reload halaman
+    e.preventDefault(); 
+    
+    const trimmedKeyword = keyword.trim();
+    if (!trimmedKeyword) {
+      // Jika input kosong, jangan lakukan apa-apa
+      return;
+    }
+
+    // Gunakan encodeURIComponent untuk memastikan keyword aman untuk URL
+    const encodedKeyword = encodeURIComponent(trimmedKeyword);
+    
+    // --- DIKEMBALIKAN KE METODE SLUG ---
+    // Sesuai dengan permintaan Postman yang berhasil
+    router.push(`/search/${encodedKeyword}`);
+  };
+
   return (
-     <div className="relative mb-4 md:mb-6 z-20">
-            <form>
-                <input
-                    type="text"
-                    placeholder="Search anime..."
-                    className="w-full px-4 py-2 md:py-3 rounded-full bg-[#2E2F40] text-white text-sm md:text-base"
-                />
-                <button
-                    type="submit"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 bg-pink-500 text-white p-2 rounded-full"
-                >
-                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-            </form>
-        </div>
-  )
+    <form onSubmit={handleSearch} className="w-full max-w-md mx-auto my-8">
+      <div className="relative">
+        <input
+          type="text"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          placeholder="Cari judul anime..."
+          className="w-full bg-neutral-800 border-2 border-neutral-700 text-white rounded-full py-3 pl-5 pr-14 focus:outline-none focus:border-pink-500 transition"
+        />
+        <button
+          type="submit"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-pink-600 text-white p-2 rounded-full hover:bg-pink-700 transition"
+          aria-label="Cari"
+        >
+          <MagnifyingGlassIcon className="h-6 w-6" />
+        </button>
+      </div>
+    </form>
+  );
 }
 
-export default SearchInput
