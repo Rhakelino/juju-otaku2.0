@@ -40,13 +40,13 @@ export default async function SearchPage({ params }) {
     <div className="min-h-screen bg-neutral-900 text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-           {/* --- PERBAIKAN: Menggunakan Hero Icon untuk link kembali --- */}
            <Link href="/" className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2">
              <ArrowLeftIcon className="h-5 w-5" />
              {'Kembali ke Beranda'}
            </Link>
           <h1 className="text-3xl md:text-4xl font-bold">
-            {`Hasil Pencarian untuk: `}<span className="text-pink-500">"{keyword}"</span>
+            {'Hasil Pencarian untuk: '}
+            <span className="text-pink-500">"{keyword}"</span>
           </h1>
         </div>
 
@@ -71,6 +71,7 @@ export default async function SearchPage({ params }) {
           </div>
         ) : (
           <div className="text-center py-16">
+            {/* --- PERBAIKAN FINAL UNTUK ESLINT --- */}
             <h2 className="text-2xl font-semibold text-neutral-400">
               {'Yah, tidak ketemu...'}
             </h2>
