@@ -4,6 +4,9 @@ const nextConfig = {
         remotePatterns: [
             {
                 hostname: "otakudesu.best"
+            },
+            {
+                hostname: "cdn.myanimelist.net"
             }
         ]
     }

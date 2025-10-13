@@ -1,28 +1,67 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-async function getDetailAnime(slug) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const response = await fetch(`${apiUrl}/anime/${slug}`);
-  if (!response.ok) {
-    throw new Error('Gagal mengambil data anime');
+// --- FUNGSI DIPERBARUI ---
+async function getHighQualityImage(japaneseTitle) {
+
+
+  // 2. Jika judul utama gagal, coba dengan judul Jepang
+  if (japaneseTitle) {
+    try {
+      const jikanResponse = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(japaneseTitle)}&limit=1`);
+      if (jikanResponse.ok) {
+        const jikanResult = await jikanResponse.json();
+        const imageUrl = jikanResult.data?.[0]?.images?.jpg?.large_image_url;
+        if (imageUrl) return imageUrl; // Jika berhasil, kembalikan
+      }
+    } catch (error) {
+      console.error("Jikan API error (japanese_title):", error);
+    }
   }
-  const result = await response.json();
-  return result.data;
+
+  // 3. Jika semua gagal, kembalikan null
+  return null;
+}
+
+async function getDetailAnime(slug) {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${apiUrl}/anime/${slug}`);
+    if (!response.ok) {
+      throw new Error('Gagal mengambil data anime utama');
+    }
+    const result = await response.json();
+    return result.data;
+  } catch (error) {
+    console.error("Gagal mengambil detail anime:", error);
+    return null;
+  }
 }
 
 export default async function DetailAnimePage({ params }) {
   const { slug } = params;
-  const anime = await getDetailAnime(slug);
+  
+  const animeData = await getDetailAnime(slug);
 
-  // Jika tidak ada data anime, hentikan render lebih awal
-  if (!anime) {
+  if (!animeData) {
     return (
-      <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center">
-        <p>Gagal memuat data anime atau anime tidak ditemukan.</p>
+      <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center">
+        <h1 className="text-2xl font-bold text-red-500">Anime Tidak Ditemukan</h1>
+        <p className="text-neutral-400 mt-2">Data untuk anime ini tidak dapat dimuat.</p>
+        <Link href="/" className="mt-6 bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition">
+          Kembali ke Beranda
+        </Link>
       </div>
     );
   }
+
+  // --- LOGIKA DIPERBARUI ---
+  const highQualityImage = await getHighQualityImage(animeData.japanese_title);
+
+  const anime = {
+    ...animeData,
+    poster: highQualityImage || animeData.poster,
+  };
 
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
@@ -41,7 +80,7 @@ export default async function DetailAnimePage({ params }) {
             alt={anime.title}
             className="object-cover rounded-lg shadow-xl"
             width={400}
-            height={600} // Disesuaikan agar proporsional
+            height={600}
             priority
           />
         </div>
@@ -54,16 +93,14 @@ export default async function DetailAnimePage({ params }) {
           </div>
           <div className="flex space-x-4 mb-6">
             <Link
-              href={`/watch/${anime.episode_lists?.[0]?.slug || ''}`} // Link ke episode pertama
+              href={`/watch/${anime.episode_lists?.[0]?.slug || ''}`}
               className="bg-pink-600 text-white px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-pink-700 transition"
             >
               Watch Now
             </Link>
-            {/* === TOMBOL DOWNLOAD BATCH DITAMBAHKAN DI SINI === */}
-            {/* Tombol ini hanya akan muncul jika data `anime.batch.slug` ada */}
             {anime.batch && anime.batch.slug && (
                <Link
-                href={`/download/${anime.batch.slug}`} // Menggunakan slug dari data batch
+                href={`/download/${anime.batch.slug}`}
                 className="bg-blue-600 text-white px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-blue-700 transition"
               >
                 Download Batch
@@ -140,7 +177,7 @@ export default async function DetailAnimePage({ params }) {
             ))
           ) : (
             <div className="col-span-full text-center text-neutral-400 py-8">
-              No episodes available for this anime yet.
+              {'No episodes available for this anime yet.'}
             </div>
           )}
         </div>
@@ -148,4 +185,3 @@ export default async function DetailAnimePage({ params }) {
     </div>
   );
 }
-
