@@ -46,7 +46,7 @@ export default async function SearchPage({ params }) {
            </Link>
           <h1 className="text-3xl md:text-4xl font-bold">
             {'Hasil Pencarian untuk: '}
-            <span className="text-pink-500">"{keyword}"</span>
+            <span className="text-pink-500">{keyword}</span>
           </h1>
         </div>
 
@@ -75,9 +75,6 @@ export default async function SearchPage({ params }) {
             <h2 className="text-2xl font-semibold text-neutral-400">
               {'Yah, tidak ketemu...'}
             </h2>
-            <p className="text-neutral-500 mt-2">
-              {`Tidak ada hasil ditemukan untuk pencarian "${keyword}". Coba kata kunci lain.`}
-            </p>
           </div>
         )}
       </div>
