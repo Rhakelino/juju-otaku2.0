@@ -36,14 +36,10 @@ const AnimeCard = ({ title, image, releaseDay, slug, currentEpisode, newestRelea
             </div>
           </div>
         </div>
-
-        {/* 2. Tambahkan "flex flex-col flex-1" di sini */}
         <div className="p-4 bg-[#1A1A29] flex flex-col flex-1">
-          <h3 className="font-bold bg-[#1A1A29] text-lg mb-2 line-clamp-2 text-white/90 group-hover:text-white transition-colors">
+          <h3 className="font-bold bg-[#1A1A29] text-md mb-2 line-clamp-2 text-white/90 group-hover:text-white transition-colors">
             {title}
           </h3>
-          
-          {/* 3. Tambahkan "mt-auto" di sini */}
           <div className="flex bg-[#1A1A29] justify-between items-center text-sm mt-auto">
             <span className="text-neutral-400 bg-[#1A1A29] px-2 py-1 rounded-full text-xs">
               {releaseDay || lastReleaseDate}
