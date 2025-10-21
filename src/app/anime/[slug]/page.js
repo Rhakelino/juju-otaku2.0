@@ -32,7 +32,8 @@ async function getDetailAnime(slug) {
   }
 }
 
-export default async function DetailAnimePage({ params }) {
+export default async function DetailAnimePage({ params: paramsPromise }) {
+  const params = await paramsPromise;
   const { slug } = params;
 
   const animeData = await getDetailAnime(slug);
