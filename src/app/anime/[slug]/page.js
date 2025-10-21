@@ -1,25 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-// --- FUNGSI DIPERBARUI ---
 async function getHighQualityImage(japaneseTitle) {
-
-
-  // 2. Jika judul utama gagal, coba dengan judul Jepang
   if (japaneseTitle) {
     try {
       const jikanResponse = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(japaneseTitle)}&limit=1`);
       if (jikanResponse.ok) {
         const jikanResult = await jikanResponse.json();
         const imageUrl = jikanResult.data?.[0]?.images?.jpg?.large_image_url;
-        if (imageUrl) return imageUrl; // Jika berhasil, kembalikan
+        if (imageUrl) return imageUrl;
       }
     } catch (error) {
       console.error("Jikan API error (japanese_title):", error);
     }
   }
-
-  // 3. Jika semua gagal, kembalikan null
   return null;
 }
 
@@ -40,7 +34,7 @@ async function getDetailAnime(slug) {
 
 export default async function DetailAnimePage({ params }) {
   const { slug } = params;
-  
+
   const animeData = await getDetailAnime(slug);
 
   if (!animeData) {
@@ -55,7 +49,6 @@ export default async function DetailAnimePage({ params }) {
     );
   }
 
-  // --- LOGIKA DIPERBARUI ---
   const highQualityImage = await getHighQualityImage(animeData.japanese_title);
 
   const anime = {
@@ -65,15 +58,11 @@ export default async function DetailAnimePage({ params }) {
 
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
-      {/* Background Blur */}
       <div
         className="absolute inset-0 bg-cover bg-center blur-sm opacity-30"
         style={{ backgroundImage: `url(${anime.poster})` }}
       ></div>
-
-      {/* Konten Utama */}
       <div className="relative z-10 container mx-auto px-4 py-8 md:flex">
-        {/* Poster */}
         <div className="md:w-1/3 justify-center flex mb-6 md:mb-0 md:pr-8 flex-shrink-0">
           <Image
             src={anime.poster}
@@ -85,7 +74,6 @@ export default async function DetailAnimePage({ params }) {
           />
         </div>
 
-        {/* Detail Informasi */}
         <div className="md:w-2/3">
           <h1 className="text-4xl font-bold mb-4">{anime.title}</h1>
           <div className="flex items-center space-x-4 mb-4">
@@ -99,7 +87,7 @@ export default async function DetailAnimePage({ params }) {
               Watch Now
             </Link>
             {anime.batch && anime.batch.slug && (
-               <Link
+              <Link
                 href={`/download/${anime.batch.slug}`}
                 className="bg-blue-600 text-white px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-blue-700 transition"
               >
@@ -156,7 +144,7 @@ export default async function DetailAnimePage({ params }) {
         <h2 className="text-2xl font-bold mb-4">Episodes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {anime.episode_lists && anime.episode_lists.length > 0 ? (
-            anime.episode_lists.map((episode) => (
+            anime.episode_lists.map((episode) => (  
               <Link
                 key={episode.slug}
                 href={`/watch/${episode.slug}`}

@@ -1,8 +1,6 @@
 import Link from 'next/link';
-// --- PERBAIKAN: Impor Hero Icon ---
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import AnimeCard from '@/app/components/AnimeCard';
-// PASTIKAN PATH INI SESUAI DENGAN LOKASI AnimeCard ANDA
 
 async function searchAnime(slug) {
   if (!slug) return [];
@@ -55,7 +53,6 @@ export default async function SearchPage({ params }) {
              {searchResults.map((anime) => {
               const slugParts = anime.slug.split('/').filter(Boolean);
               const processedSlug = slugParts.pop() || '';
-
               return (
                 <AnimeCard
                   key={processedSlug || anime.title}
@@ -71,7 +68,6 @@ export default async function SearchPage({ params }) {
           </div>
         ) : (
           <div className="text-center py-16">
-            {/* --- PERBAIKAN FINAL UNTUK ESLINT --- */}
             <h2 className="text-2xl font-semibold text-neutral-400">
               {'Yah, tidak ketemu...'}
             </h2>
@@ -81,4 +77,3 @@ export default async function SearchPage({ params }) {
     </div>
   );
 }
-

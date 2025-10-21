@@ -1,15 +1,12 @@
 import Link from 'next/link';
 
-// Fungsi untuk mengambil data download batch (versi bersih)
 async function getBatchData(slug) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // Endpoint yang benar, tanpa '/anime' di depannya
   const fullUrl = `${apiUrl}/batch/${slug}`;
 
   const response = await fetch(fullUrl);
 
   if (!response.ok) {
-    // Lemparkan error jika API mengembalikan status gagal
     throw new Error(`Gagal mengambil data download batch. Status: ${response.status}`);
   }
 
@@ -23,7 +20,6 @@ export default async function DownloadPage({ params }) {
   try {
     const batchData = await getBatchData(slug);
 
-    // Pengecekan jika data atau link download tidak ada
     if (!batchData || !batchData.downloadUrl || !batchData.downloadUrl.formats) {
       return (
         <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center">
@@ -35,7 +31,6 @@ export default async function DownloadPage({ params }) {
         </div>
       );
     }
-    // Tampilan jika data berhasil didapatkan
     return (
       <div className="min-h-screen bg-neutral-900 text-white py-12">
         <div className="container mx-auto px-4">

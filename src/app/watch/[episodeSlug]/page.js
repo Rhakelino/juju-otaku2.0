@@ -1,30 +1,25 @@
-'use client'; // <-- Tandai sebagai Client Component untuk interaktivitas
+'use client';
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 
-// --- DIUBAH: Komponen LoadingSpinner diganti dengan Skeleton ---
 function WatchPageSkeleton() {
   return (
     <div className="min-h-screen bg-black text-white animate-pulse">
       <div className="container mx-auto px-4 py-8">
         
-        {/* Placeholder untuk Video Player */}
         <div className="aspect-video bg-slate-800 rounded-lg mb-4 shadow-lg"></div>
 
-        {/* Placeholder untuk Pemilih Server */}
         <div className="bg-slate-900/50 p-4 rounded-lg mb-4">
             <div className="h-7 w-48 bg-slate-700 rounded mb-3"></div>
             <div className="flex flex-wrap gap-2">
-              {/* Menampilkan beberapa placeholder tombol server */}
               {Array.from({ length: 12 }).map((_, index) => (
                 <div key={index} className="h-9 w-28 bg-slate-700 rounded-md"></div>
               ))}
             </div>
         </div>
 
-        {/* Placeholder untuk Judul dan Navigasi Episode */}
         <div className="bg-slate-900/50 p-4 rounded-lg mb-8">
           <div className="h-8 w-3/4 bg-slate-700 rounded mb-2"></div>
           <div className="flex justify-between items-center">
@@ -36,10 +31,8 @@ function WatchPageSkeleton() {
           </div>
         </div>
         
-        {/* Placeholder untuk Daftar Download */}
         <div className="bg-slate-900/50 p-4 rounded-lg">
            <div className="h-8 w-40 bg-slate-700 border-b-2 border-slate-700 pb-2 mb-4 rounded"></div>
-           {/* Placeholder untuk satu grup format (misal: MP4) */}
            <div className="mb-4">
              <div className="h-7 w-16 bg-slate-700 rounded mb-2"></div>
              <div className="bg-slate-800 rounded-lg p-3 mb-3">
@@ -66,7 +59,6 @@ function WatchPageSkeleton() {
   );
 }
 
-// Komponen 'Error' sederhana
 function ErrorDisplay({ message, animeSlug }) {
   return (
     <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center px-4">
@@ -88,12 +80,10 @@ function ErrorDisplay({ message, animeSlug }) {
 export default function WatchPage({ params }) {
   const { episodeSlug } = params;
   
-  // State untuk menyimpan data episode, status loading, dan error
   const [episodeData, setEpisodeData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Mengambil data saat komponen dimuat atau saat episodeSlug berubah
   useEffect(() => {
     async function fetchEpisodeData() {
       setIsLoading(true);
@@ -117,7 +107,6 @@ export default function WatchPage({ params }) {
   }, [episodeSlug]);
 
   if (isLoading) {
-    // --- DIUBAH: Menampilkan skeleton loading ---
     return <WatchPageSkeleton />;
   }
 
@@ -129,7 +118,6 @@ export default function WatchPage({ params }) {
     return <ErrorDisplay message="Data episode tidak ditemukan." />;
   }
 
-  // Mengumpulkan semua opsi resolusi DAN FORMATNYA
   const qualityOptions = [];
   if (episodeData.download_urls) {
     for (const format in episodeData.download_urls) {
@@ -152,7 +140,6 @@ export default function WatchPage({ params }) {
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
         
-        {/* Player sekarang aktif dan memutar stream_url default */}
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">
           {episodeData.stream_url ? (
             <iframe
@@ -169,8 +156,6 @@ export default function WatchPage({ params }) {
             </div>
           )}
         </div>
-
-        {/* Pemilih Server (tetap membuka tab baru) */}
         <div className="bg-neutral-900 p-4 rounded-lg mb-4">
             <h2 className="text-lg font-semibold mb-3">Pilih Server Lain (Tab Baru)</h2>
             <div className="flex flex-wrap gap-2">
@@ -190,7 +175,6 @@ export default function WatchPage({ params }) {
             </div>
         </div>
 
-        {/* Judul dan Navigasi Episode */}
         <div className="bg-neutral-900 p-4 rounded-lg mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 truncate">{episodeData.episode}</h1>
           <div className="flex justify-between items-center">
@@ -214,7 +198,6 @@ export default function WatchPage({ params }) {
           </div>
         </div>
         
-        {/* Daftar Download */}
         <div className="bg-neutral-900 p-4 rounded-lg">
            <h2 className="text-xl font-semibold text-pink-500 border-b-2 border-neutral-700 pb-2 mb-4">
             Download Links

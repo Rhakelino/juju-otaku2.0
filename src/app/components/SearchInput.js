@@ -1,4 +1,4 @@
-'use client'; // <-- Komponen ini interaktif, jadi harus 'use client'
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,20 +9,15 @@ export default function SearchInput() {
   const router = useRouter();
 
   const handleSearch = (e) => {
-    // Mencegah form me-reload halaman
     e.preventDefault(); 
     
     const trimmedKeyword = keyword.trim();
     if (!trimmedKeyword) {
-      // Jika input kosong, jangan lakukan apa-apa
       return;
     }
 
-    // Gunakan encodeURIComponent untuk memastikan keyword aman untuk URL
     const encodedKeyword = encodeURIComponent(trimmedKeyword);
     
-    // --- DIKEMBALIKAN KE METODE SLUG ---
-    // Sesuai dengan permintaan Postman yang berhasil
     router.push(`/search/${encodedKeyword}`);
   };
 
