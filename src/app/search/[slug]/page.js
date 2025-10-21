@@ -1,28 +1,24 @@
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import AnimeCard from '@/app/components/AnimeCard';
+import SearchInput from '@/app/components/SearchInput';
 
 async function searchAnime(slug) {
   if (!slug) return [];
-  
+
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const searchUrl = `${apiUrl}/search/${slug}`;
 
-    const response = await fetch(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Referer': 'https://www.sankavollerei.com/' 
-      }
-    });
-    
+    const response = await fetch(searchUrl);
+
     if (!response.ok) {
       console.error(`API error for slug "${slug}": Status ${response.status}`);
       return [];
     }
 
     const result = await response.json();
-    return result.search_results || []; 
+    return result.search_results || [];
   } catch (error) {
     console.error("Gagal total saat mengambil hasil pencarian:", error);
     return [];
@@ -30,29 +26,29 @@ async function searchAnime(slug) {
 }
 
 export default async function SearchPage({ params }) {
-  const { slug } = params; 
-  const keyword = decodeURIComponent(slug); 
+  const { slug } = params;
+  const keyword = decodeURIComponent(slug);
   const searchResults = await searchAnime(slug);
 
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-           <Link href="/" className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2">
-             <ArrowLeftIcon className="h-5 w-5" />
-             {'Kembali ke Beranda'}
-           </Link>
+          <Link href="/" className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2">
+            <ArrowLeftIcon className="h-5 w-5" />
+            {'Kembali ke Beranda'}
+          </Link>
+          <SearchInput />
           <h1 className="text-3xl md:text-4xl font-bold">
             {'Hasil Pencarian untuk: '}
             <span className="text-pink-500">{keyword}</span>
           </h1>
         </div>
-
         {searchResults && searchResults.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-             {searchResults.map((anime) => {
-              const slugParts = anime.slug.split('/').filter(Boolean);
-              const processedSlug = slugParts.pop() || '';
+            {searchResults.map((anime) => {
+              const slugParts = anime.slug?.split('/').filter(Boolean);
+              const processedSlug = slugParts?.pop() || '';
               return (
                 <AnimeCard
                   key={processedSlug || anime.title}

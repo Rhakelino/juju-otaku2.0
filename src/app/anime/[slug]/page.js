@@ -73,7 +73,6 @@ export default async function DetailAnimePage({ params }) {
             priority
           />
         </div>
-
         <div className="md:w-2/3">
           <h1 className="text-4xl font-bold mb-4">{anime.title}</h1>
           <div className="flex items-center space-x-4 mb-4">

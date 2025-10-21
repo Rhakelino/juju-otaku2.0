@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 
 // Komponen WatchPageSkeleton dan ErrorDisplay tetap sama (tidak perlu diubah)
@@ -80,7 +80,7 @@ function ErrorDisplay({ message, animeSlug }) {
 
 
 export default function WatchPage({ params }) {
-  const { episodeSlug } = params;
+  const { episodeSlug } = use(params);
   
   const [episodeData, setEpisodeData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,33 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 export default function SearchInput() {
-  const [keyword, setKeyword] = useState('');
   const router = useRouter();
+  const searchRef = useRef()
 
   const handleSearch = (e) => {
     e.preventDefault(); 
     
-    const trimmedKeyword = keyword.trim();
-    if (!trimmedKeyword) {
-      return;
-    }
-
-    const encodedKeyword = encodeURIComponent(trimmedKeyword);
+    const keyword = searchRef.current.value
+    // const trimmedKeyword = keyword.trim();
+    // if (!trimmedKeyword) {
+    //   return;
+    // }
+    // const encodedKeyword = encodeURIComponent(trimmedKeyword);
     
-    router.push(`/search/${encodedKeyword}`);
+    router.push(`/search/${keyword}`);
   };
 
   return (
-    <form onSubmit={handleSearch} className="w-full max-w-md mx-auto my-8">
+    <form onSubmit={handleSearch} className="w-full max-w-md my-8">
       <div className="relative">
         <input
           type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          ref={searchRef}
           placeholder="Cari judul anime..."
           className="w-full bg-neutral-800 border-2 border-neutral-700 text-white rounded-full py-3 pl-5 pr-14 focus:outline-none focus:border-pink-500 transition"
         />
