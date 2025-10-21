@@ -14,7 +14,8 @@ async function getBatchData(slug) {
   return result.data;
 }
 
-export default async function DownloadPage({ params }) {
+export default async function DownloadPage({ params: paramsPromise }) {
+  const params = await paramsPromise;
   const { slug } = params;
   
   try {
