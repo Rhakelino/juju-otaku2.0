@@ -1,7 +1,6 @@
-import Link from 'next/link';
-import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import AnimeCard from '@/app/components/AnimeCard';
 import SearchInput from '@/app/components/SearchInput';
+import Navigation from '@/app/components/Navigation';
 
 async function searchAnime(slug) {
   if (!slug) return [];
@@ -34,10 +33,7 @@ export default async function SearchPage({ params }) {
     <div className="min-h-screen bg-neutral-900 text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <Link href="/" className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2">
-            <ArrowLeftIcon className="h-5 w-5" />
-            {'Kembali ke Beranda'}
-          </Link>
+          <Navigation href="/" text="Kembali Ke Beranda" />
           <SearchInput />
           <h1 className="text-3xl md:text-4xl font-bold">
             {'Hasil Pencarian untuk: '}

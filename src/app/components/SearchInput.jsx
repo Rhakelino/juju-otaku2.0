@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
@@ -9,16 +9,15 @@ export default function SearchInput() {
   const searchRef = useRef()
 
   const handleSearch = (e) => {
-    e.preventDefault(); 
-    
+    e.preventDefault();
+
     const keyword = searchRef.current.value
-    // const trimmedKeyword = keyword.trim();
-    // if (!trimmedKeyword) {
-    //   return;
-    // }
-    // const encodedKeyword = encodeURIComponent(trimmedKeyword);
-    
-    router.push(`/search/${keyword}`);
+
+    if (keyword == "") {
+      alert("ketik dulu dongo")
+    } else {
+      router.push(`/search/${keyword}`);
+    }
   };
 
   return (

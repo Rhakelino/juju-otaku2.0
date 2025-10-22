@@ -9,7 +9,6 @@ const AnimeCard = ({ title, image, releaseDay, slug, currentEpisode, newestRelea
       href={`/anime/${slug}`}
       className="group"
     >
-      {/* 1. Tambahkan "flex flex-col" di sini */}
       <div className="bg-[#1A1A29] h-full shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer border rounded-xl border-neutral-600/50 hover:border-pink-500/30 transform hover:-translate-y-2 flex flex-col">
         <div className="relative h-64 w-full overflow-hidden">
           <Image
