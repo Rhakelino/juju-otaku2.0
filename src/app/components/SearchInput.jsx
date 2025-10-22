@@ -15,6 +15,8 @@ export default function SearchInput() {
 
     if (keyword == "") {
       alert("ketik dulu dongo")
+    } else if (keyword.trim() == "") {
+      alert("jangan ngetik spasi juga dongo")
     } else {
       router.push(`/search/${keyword}`);
     }
