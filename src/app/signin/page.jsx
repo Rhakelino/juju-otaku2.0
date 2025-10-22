@@ -50,7 +50,7 @@ export default function SignInPage() {
               key={provider.name}
               // Ini adalah fungsi utama untuk memicu login
               onClick={() => signIn(provider.id, { 
-                callbackUrl: '/dashboard' // Redirect ke dashboard setelah login
+                callbackUrl: '/users/dashboard' // Redirect ke dashboard setelah login
               })}
               className={`
                 w-full flex items-center justify-center gap-3 px-4 py-3 
