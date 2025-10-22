@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 const HeroSection = () => {
   return (
-     <div className="flex items-center justify-center pt-16 bg-[#1A1A29] p-4">
+    <div className="flex items-center justify-center pt-16 bg-[#1A1A29] p-4">
       <div className="w-full max-w-5xl bg-[#252736] md:h-[500px] rounded-2xl overflow-hidden 
         grid grid-cols-1 md:grid-cols-2 
         shadow-2xl shadow-black/40 border border-neutral-800/30">
@@ -26,14 +26,15 @@ const HeroSection = () => {
             Demon Slayer: Kimetsu no Y... Demon Slayer: The Hashira... To Be Hero X
           </div>
           <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4 relative z-20">
-            <button
+            <Link
+              href="/anime"
               className="bg-pink-500 text-white px-6 py-2 md:py-3 rounded-full flex items-center justify-center"
             >
-              Watch anime
+              Lihat Semua Anime
               <svg className="w-4 h-4 md:w-5 md:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-            </button>
+            </Link>
 
             <Link href={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 md:py-3 rounded-full">
               Donate JujuOtaku
