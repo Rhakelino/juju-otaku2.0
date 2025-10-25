@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, use } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
+import Navigation from '@/app/components/Navigation';
 
 function WatchPageSkeleton() {
   return (
@@ -178,7 +179,7 @@ export default function WatchPage({ params }) {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
-
+        <Navigation/>
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">
           {currentStreamUrl ? (
             <iframe

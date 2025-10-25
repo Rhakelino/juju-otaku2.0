@@ -17,14 +17,15 @@ async function searchAnime(slug) {
     }
 
     const result = await response.json();
-    return result.search_results || [];
+    return result.data || [];
   } catch (error) {
     console.error("Gagal total saat mengambil hasil pencarian:", error);
     return [];
   }
 }
 
-export default async function SearchPage({ params }) {
+export default async function SearchPage({ params: ParamsPromise }) {
+  const params = await ParamsPromise;
   const { slug } = params;
   const keyword = decodeURIComponent(slug);
   const searchResults = await searchAnime(slug);
@@ -33,7 +34,7 @@ export default async function SearchPage({ params }) {
     <div className="min-h-screen bg-neutral-900 text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <Navigation href="/" text="Kembali Ke Beranda" />
+          <Navigation />
           <SearchInput />
           <h1 className="text-3xl md:text-4xl font-bold">
             {'Hasil Pencarian untuk: '}
@@ -52,7 +53,6 @@ export default async function SearchPage({ params }) {
                   title={anime.title}
                   image={anime.poster}
                   releaseDay={anime.status || 'N/A'}
-                  currentEpisode={`Eps: ${anime.episode_count || '?'}`}
                   newestReleaseDate={anime.release_date ? anime.release_date.split(',')[0] : null}
                 />
               );

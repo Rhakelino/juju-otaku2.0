@@ -40,11 +40,10 @@ const Page = async () => {
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white p-4 md:p-8">
-            <Navigation href="/" text="Kembali Ke Beranda" />
+            <Navigation />
             <h1 className="text-3xl font-bold mb-8 text-center text-pink-500">
                 Daftar Semua Anime A - Z
             </h1>
-            {/* Render Client Component dan kirim data utuh */}
             <AnimeListClient initialData={flattenedAnimeList} />
         </div>
     );

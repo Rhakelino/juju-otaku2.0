@@ -19,7 +19,7 @@ async function DashboardPage() {
   return (
     <section className="font-sans p-8 min-h-screen bg-gray-900 text-gray-100">
 
-      <Navigation href="/" text="Kembali ke Home" />
+      <Navigation/>
       {/* Judul diubah ke text-white */}
       <h1 className="text-3xl font-bold text-white mb-6">
         Dashboard

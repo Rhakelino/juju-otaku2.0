@@ -1,13 +1,21 @@
+"use client"
 import { ArrowLeftIcon } from '@heroicons/react/24/solid'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 
-const Navigation = ({href, text}) => {
+const Navigation = () => {
+
+    const router = useRouter()
+
+    const handleBack = () => {
+        router.back()
+    }
+
     return (
-        <Link href={`/${href}`} className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2">
+        <button onClick={handleBack} className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2">
             <ArrowLeftIcon className="h-5 w-5" />
-            {text}
-        </Link>
+            Kembali
+        </button>
     )
 }
 
