@@ -1,3 +1,4 @@
+import Navigation from '@/app/components/Navigation';
 import Link from 'next/link';
 
 async function getBatchData(slug) {
@@ -17,7 +18,7 @@ async function getBatchData(slug) {
 export default async function DownloadPage({ params: paramsPromise }) {
   const params = await paramsPromise;
   const { slug } = params;
-  
+
   try {
     const batchData = await getBatchData(slug);
 
@@ -26,15 +27,14 @@ export default async function DownloadPage({ params: paramsPromise }) {
         <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center">
           <h1 className="text-2xl font-bold mb-4">Download Links Not Found</h1>
           <p className="text-neutral-400 mb-8">Data ditemukan, tetapi tidak ada link download yang tersedia.</p>
-          <Link href="/" className="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition">
-            Kembali ke Beranda
-          </Link>
+          <Navigation />
         </div>
       );
     }
     return (
       <div className="min-h-screen bg-neutral-900 text-white py-12">
         <div className="container mx-auto px-4">
+          <Navigation />
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-bold mb-2">{batchData.title}</h1>
             <p className="text-neutral-400">Download Batch Links</p>
