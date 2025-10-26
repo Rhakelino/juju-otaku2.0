@@ -1,5 +1,6 @@
+// File: AnimeCompleted.jsx
 import React from 'react'
-import AnimeCard from './AnimeCard' 
+import AnimeCard from './AnimeCard'
 
 const AnimeCompleted = ({ api }) => {
   return (
@@ -11,8 +12,8 @@ const AnimeCompleted = ({ api }) => {
           image={anime.poster}
           slug={anime.slug}
           episodeCount={anime.episode_count}
-          rating={anime.rating}
-          views={anime.last_release_date}
+          rating={anime.rating} 
+          views={anime.last_release_date} 
         />
       ))}
     </div>
