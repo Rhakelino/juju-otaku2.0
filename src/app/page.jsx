@@ -5,13 +5,11 @@ import HeroSection from "@/app/components/HeroSection";
 
 const Home = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  const responseOnGoing = await fetch(`${apiUrl}/ongoing-anime?page=1`)
-  const responseComplete = await fetch(`${apiUrl}/complete-anime/1`)
+  const response = await fetch(`${apiUrl}/home`)
   
-  const resultOnGoing = await responseOnGoing.json()
-  const resultComplete = await responseComplete.json()
-  const animeOngoing = await resultOnGoing.data.ongoingAnimeData
-  const animeComplete = await resultComplete.data.completeAnimeData
+  const result = await response.json()
+  const animeOngoing = await result.data.ongoing_anime
+  const animeComplete = await result.data.complete_anime
 
   return (
     <>
