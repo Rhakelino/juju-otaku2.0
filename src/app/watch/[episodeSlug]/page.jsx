@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useState, useEffect, use } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import Navigation from '@/app/components/Navigation';
 
@@ -80,7 +81,14 @@ function ErrorDisplay({ message, animeSlug }) {
 
 
 export default function WatchPage({ params }) {
-  const { episodeSlug } = use(params);
+  // params may be a Promise when passed into a client component. Unwrap it with
+  // React.use(params) (Next.js recommends this) before accessing its properties.
+  const resolvedParams = React.use ? React.use(params) : params;
+  // episodeSlug is a catch-all segment [...episodeSlug] so it's an array — take the last element
+  const episodeSlugArray = resolvedParams?.episodeSlug;
+  const episodeSlug = Array.isArray(episodeSlugArray) ? episodeSlugArray[episodeSlugArray.length - 1] : episodeSlugArray || null;
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const [episodeData, setEpisodeData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +122,42 @@ export default function WatchPage({ params }) {
 
     fetchEpisodeData();
   }, [episodeSlug]);
+
+  // Save viewing history for authenticated users when episode data is available
+  useEffect(() => {
+    if (episodeData && sessionStatus === 'authenticated' && episodeSlug) {
+      const animeSlug = episodeData.anime?.slug;
+      const animeTitle = episodeData.anime?.title;
+      const animeImage = episodeData.anime?.image;
+
+      if (!animeSlug) {
+        console.warn('Data anime slug tidak ada, riwayat tidak disimpan.');
+        return;
+      }
+
+      const saveHistory = async () => {
+        try {
+          await fetch('/api/history', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              animeId: animeSlug,
+              episodeId: episodeSlug,
+              title: animeTitle || episodeData.episode,
+              image: animeImage || null,
+            }),
+          });
+          console.log('Riwayat tontonan disimpan!');
+        } catch (err) {
+          console.error('Gagal menyimpan riwayat', err);
+        }
+      };
+
+      saveHistory();
+    }
+  }, [episodeData, sessionStatus, episodeSlug]);
 
   if (isLoading) {
     return <WatchPageSkeleton />;
