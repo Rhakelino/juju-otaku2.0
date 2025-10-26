@@ -5,17 +5,15 @@ import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { FaEye, FaStar } from 'react-icons/fa' 
 
-// --- UBAH PROPS: Hapus 'rating' dan ganti jadi 'ratingProp' ---
-// Ini untuk menghindari konflik nama dengan state
+// Ganti nama prop 'rating' menjadi 'ratingProp' untuk menghindari konflik
 const AnimeCard = ({ title, image, slug, currentEpisode, rating: ratingProp, views, episodeCount }) => {
 
   const [episodeText, setEpisodeText] = useState(null);
-  // --- TAMBAHKAN STATE UNTUK RATING ---
-  const [rating, setRating] = useState(ratingProp || null);
+  const [rating, setRating] = useState(ratingProp || null); // State untuk rating
 
   useEffect(() => {
-    async function fetchEpisodeCount() {
-      setEpisodeText('Eps ?'); 
+    async function fetchMissingData() {
+      // (Fungsi fetch ini hanya akan dipanggil jika perlu)
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       try {
         const response = await fetch(`${apiUrl}/anime/${slug}`);
@@ -23,13 +21,12 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating: ratingProp, vie
         
         const result = await response.json();
         
-        // Cek apakah data ada
         if (result.data) {
-          // Hanya update jika prop tidak ada
+          // 1. Set Teks Episode (hanya jika tidak ada)
           if (!currentEpisode && !episodeCount && result.data.episode_count) {
             setEpisodeText(`Eps ${result.data.episode_count}`);
           }
-          // --- TAMBAHKAN LOGIKA FETCH RATING ---
+          // 2. Set Rating (hanya jika tidak ada)
           if (!ratingProp && result.data.rating) {
             setRating(result.data.rating);
           }
@@ -41,22 +38,35 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating: ratingProp, vie
       }
     }
 
+    // --- LOGIKA UTAMA YANG BARU (LEBIH PINTAR) ---
+
+    // 1. Logika untuk Teks Episode
     if (currentEpisode) {
+      // Ini anime ONGOING, langsung set teks-nya
       setEpisodeText(currentEpisode.replace('Eps:', 'Eps ')); 
     } else if (episodeCount) {
+      // Ini anime COMPLETED, langsung set teks-nya
       setEpisodeText(`Eps ${episodeCount}`);
     } else if (slug) {
-      // Hanya fetch jika episode atau rating tidak ada
-      if (!currentEpisode && !episodeCount || !ratingProp) {
-        fetchEpisodeCount();
-      }
-    }
-    // Pastikan ratingProp di-set ke state
-    if (ratingProp) {
-      setRating(ratingProp);
+      // Ini dari SEARCH/LIST, panggil fetch untuk episode
+      fetchMissingData(); 
     }
 
-  }, [slug, currentEpisode, episodeCount, ratingProp]); // Tambahkan ratingProp di dependency
+    // 2. Logika untuk Rating
+    if (ratingProp) {
+      // Ini anime COMPLETED (dapat data dari prop), langsung set
+      setRating(ratingProp);
+    } else if (slug && !currentEpisode) {
+      // Ini BUKAN anime ongoing (misal dari SEARCH/LIST)
+      // JADI, kita panggil fetch untuk rating
+      fetchMissingData();
+    }
+    
+    // JIKA INI ANIME ONGOING (currentEpisode ada) DAN ratingProp TIDAK ADA,
+    // kita tidak melakukan apa-apa. 'rating' akan tetap 'null'.
+    // INI ADALAH KUNCI PERBAIKAN PERFORMA ANDA.
+
+  }, [slug, currentEpisode, episodeCount, ratingProp]);
 
   return (
     <Link
@@ -70,14 +80,15 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating: ratingProp, vie
           <Image
             src={image}
             alt={title}
-            fill            
+            fill // Gunakan fill
+            // Hapus priority, width, dan height
             sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105 bg-neutral-700"
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 
-          {/* Gunakan state 'rating' */}
+          {/* Badge Rating ini sekarang TIDAK akan render untuk ONGOING */}
           {rating && (
             <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-bold text-yellow-400 backdrop-blur-sm">
               <FaStar />
@@ -85,6 +96,7 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating: ratingProp, vie
             </div>
           )}
 
+          {/* Badge Episode */}
           {episodeText && (
             <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
               {episodeText}
@@ -96,11 +108,9 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating: ratingProp, vie
           <h3 className="font-semibold text-sm text-white line-clamp-2 group-hover:text-pink-400 transition-colors">
             {title}
           </h3>
-          
-          {views && (
-            <div className="mt-1 flex items-center gap-1.5 text-xs text-neutral-400">
-              <FaEye />
-              <span>{views} views</span>
+          {!rating && currentEpisode && (
+             <div className="mt-1 flex items-center gap-1.5 text-xs text-neutral-400">
+              <span>Update setiap {views}</span>
             </div>
           )}
         </div>
