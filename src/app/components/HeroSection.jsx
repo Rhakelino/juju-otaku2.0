@@ -33,10 +33,7 @@ const HeroSection = () => {
               href="/anime"
               className="bg-pink-500 text-white px-6 py-2 md:py-3 rounded-full flex items-center justify-center"
             >
-              Database Anime
-              <svg className="w-4 h-4 md:w-5 md:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
+              Database Anime A - Z
             </Link>
 
             <Link href={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 md:py-3 rounded-full">

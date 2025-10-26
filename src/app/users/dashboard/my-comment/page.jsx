@@ -11,7 +11,7 @@ const myCommentsData = [
         episodeInfo: 'Episode 5: "The Phantom of the Dead"',
         commentText: 'Episode ini sinematografinya keren banget, flow ceritanya juga dapet. Salah satu yang terbaik sejauh ini.',
         postedDate: '2025-10-21'
-  
+
     },
     {
         id: 2,
@@ -76,7 +76,7 @@ const Page = () => {
                                         month: 'long',
                                         day: 'numeric'
                                     })}
-                                    s         </span>
+                                </span>
                             </div>
                         </div>
                     ))}

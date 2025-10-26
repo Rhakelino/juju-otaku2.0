@@ -59,7 +59,8 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating, views, episodeC
           <Image
             src={image}
             alt={title}
-            fill
+            width={300}
+            height={300}
             priority
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />

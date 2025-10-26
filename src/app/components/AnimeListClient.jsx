@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import React, { useState, useEffect, useCallback } from 'react';
 
 const PAGE_SIZE = 50; // Jumlah item yang dimuat per halaman (simulasi)
@@ -60,13 +61,13 @@ const AnimeListClient = ({ initialData }) => {
         <div className="w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2 p-4">
                 {displayedAnime.map((anime, index) => (
-                    <a 
+                    <Link
                         key={anime.href + index} // Menggunakan index sebagai fallback key
                         href={anime.href} 
                         className="block p-2 rounded-md transition-colors bg-neutral-800/50 hover:bg-pink-700/50"
                     >
                         <p className="text-sm font-medium line-clamp-1">{anime.title}</p>
-                    </a>
+                    </Link>
                 ))}
             </div>
 
