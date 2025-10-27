@@ -1,66 +1,103 @@
 // app/dashboard/page.jsx
 import Image from "next/image";
 import { AuthUserSession } from "@/app/libs/auth-libs";
-// PERBAIKAN 1: Impor 'redirect' dari 'next/navigation'
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 async function DashboardPage() {
   const session = await AuthUserSession();
 
-  // Pengecekan ini sudah benar (mengasumsikan session = { user: {...} })
   if (!session) {
-    // Anda bisa redirect ke halaman login custom Anda atau halaman default NextAuth
     redirect("/api/auth/signin");
   }
 
-  // 3. Jika ada sesi, tampilkan datanya
+  // Ambil data user dari sesi
+  const { name, email, image } = session;
+
   return (
-    <section className="font-sans p-8 min-h-screen bg-gray-900 text-gray-100">
+    // 1. Latar belakang diubah ke zinc-900
+    <section className="font-sans min-h-screen text-gray-100">
 
-      <Link href={"/"} className="flex gap-2 mb-3 text-pink-400 hover:underline">
-        <ArrowLeftIcon className="h-5 w-5" />
-        Back To Home
-      </Link>
-      {/* Judul diubah ke text-white */}
-      <h1 className="text-3xl font-bold text-white mb-6">
-        Dashboard
-      </h1>
+      {/* 2. Header: Tombol Logout diubah gayanya */}
+      <div className="flex justify-between items-center p-4">
+        <Link href={"/"} className="text-white hover:text-pink-400">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+        </Link>
+        <Link
+          href="/api/auth/signout"
+          // Gaya tombol diubah
+          className="border border-red-500 text-red-500 px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition-colors"
+        >
+          Logout
+        </Link>
+      </div>
 
-      {/* Teks paragraf diubah ke text-gray-300, strong ke text-white */}
-      <p className="text-lg text-gray-300 mb-8">
-        Selamat datang, <strong className="font-semibold text-white">{session.name}</strong>!
-      </p>
+      {/* 3. Info Profil: Avatar, Nama, dan Badge (warna badge diubah) */}
+      <div className="flex flex-col items-center px-4 pt-4">
+        <Image
+          src={image}
+          alt="Foto Profil"
+          width={100}
+          height={100}
+          className="rounded-full border-4 border-zinc-800" // diubah ke zinc-800
+          priority
+        />
+        <h1 className="text-3xl font-bold text-white mt-4">
+          {name}
+        </h1>
+        <div className="flex flex-wrap justify-center gap-2 mt-3">
+          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full">
+            Wibu Biasa
+          </span>
+          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full">
+            Lvl. 1
+          </span>
+          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full break-all">
+            {email}
+          </span>
+        </div>
+      </div>
 
-      {/* Card profil diubah ke bg-gray-800 */}
-      <div className="max-w-md bg-gray-800 rounded-lg shadow-lg p-4">
-        <div className="flex items-center gap-4">
-          {session.image && (
-            <Image
-              src={session.image}
-              alt="Foto Profil"
-              width={80}
-              height={80}
-              className="rounded-full"
-              priority
-            />
-          )}
-          {/* Teks di dalam card diubah ke text-gray-300 dan text-white */}
-          <div className="flex flex-col">
-            <p className="text-sm text-gray-300">
-              <strong className="font-medium text-white">Nama:</strong> {session.name}
-            </p>
-            <p className="text-sm text-gray-300">
-              <strong className="font-medium text-white">Email:</strong> {session.email}
-            </p>
+      {/* 4. Statistik (Ditambah garis pemisah & warna) */}
+      <div className="w-full max-w-md mx-auto mt-8 px-4 pt-8 border-t border-zinc-700">
+        <div className="flex justify-around">
+          <div className="text-center">
+            {/* Angka diberi warna pink */}
+            <p className="text-2xl font-bold text-pink-500">0</p>
+            <p className="text-sm text-neutral-400">menit menonton</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-pink-500">0</p>
+            <p className="text-sm text-neutral-400">jumlah komentar</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-pink-500">0</p>
+            <p className="text-sm text-neutral-400">bulan bergabung</p>
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3 my-4 md:w-1/2">
-        <Link href="/users/dashboard/my-history" className="border px-3 py-2 bg-pink-600 rounded-xl hover:bg-pink-700 text-center">Riwayat Tontonan</Link>
-        <Link href="/users/dashboard/my-comment" className="border px-3 py-2 bg-pink-600 rounded-xl hover:bg-pink-700 text-center">Riwayat Komentar</Link>
+
+      {/* 5. Navigasi Tombol (Menggantikan Tab) */}
+      <div className="w-full max-w-md mx-auto mt-8 px-4 flex flex-col sm:flex-row gap-4">
+        <Link
+          href="/users/dashboard/my-history"
+          className="flex-1 text-center py-3 px-6 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
+        >
+          Riwayat Tontonan
+        </Link>
+        <Link
+          href="/users/dashboard/my-comment"
+          className="flex-1 text-center py-3 px-6 bg-zinc-700 text-white font-semibold rounded-lg hover:bg-zinc-600 transition-colors"
+        >
+          Riwayat Komentar
+        </Link>
+
       </div>
+
+      {/* Bagian konten "All" (No. 6) dihapus */}
+
     </section>
   );
 }
