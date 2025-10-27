@@ -66,7 +66,7 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating, views, episodeC
           {/* Tampilkan info rilis jika ini ONGOING (ada currentEpisode, tidak ada rating) */}
           {!rating && currentEpisode && views && (
              <div className="mt-1 flex items-center gap-1.5 text-xs text-neutral-400">
-              <span>{title.includes('Season') ? 'Update' : 'Rilis'} setiap {views}</span>
+              <span>Update setiap {views}</span>
             </div>
           )}
 

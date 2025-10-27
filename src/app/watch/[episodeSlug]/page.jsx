@@ -124,40 +124,103 @@ export default function WatchPage({ params }) {
   }, [episodeSlug]);
 
   // Save viewing history for authenticated users when episode data is available
-  useEffect(() => {
-    if (episodeData && sessionStatus === 'authenticated' && episodeSlug) {
-      const animeSlug = episodeData.anime?.slug;
-      const animeTitle = episodeData.anime?.title;
-      const animeImage = episodeData.anime?.image;
+  // DENGAN VERSI BARU INI:
 
-      if (!animeSlug) {
-        console.warn('Data anime slug tidak ada, riwayat tidak disimpan.');
-        return;
-      }
+// Save viewing history for authenticated users when episode data is available
+// GANTI LAGI SELURUH BLOK useEffect INI
 
-      const saveHistory = async () => {
-        try {
-          await fetch('/api/history', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              animeId: animeSlug,
-              episodeId: episodeSlug,
-              title: animeTitle || episodeData.episode,
-              image: animeImage || null,
-            }),
-          });
-          console.log('Riwayat tontonan disimpan!');
-        } catch (err) {
-          console.error('Gagal menyimpan riwayat', err);
-        }
-      };
+// Save viewing history for authenticated users when episode data is available
+useEffect(() => {
+  // Pastikan semua data yang dibutuhkan ada
+  if (episodeData && sessionStatus === 'authenticated' && episodeSlug) {
+    
+    // 1. Ambil SLUG URL dari data episode
+    // Ini adalah URL LENGKAP, cth: "https://otakudesu.best/anime/mushoku-eiyuu-sub-indo/"
+    const animeSlugFromApi = episodeData.anime?.slug;
+    const episodeTitle = episodeData.episode; // Judul episode, mis: "One Piece Episode 1"
 
-      saveHistory();
+    if (!animeSlugFromApi) {
+      console.warn('Data anime slug (dari API) tidak ada, riwayat tidak disimpan.');
+      return;
     }
-  }, [episodeData, sessionStatus, episodeSlug]);
+
+    // 2. EKSTRAK slug bersih dari URL
+    let cleanSlug = null;
+    try {
+      const url = new URL(animeSlugFromApi);
+      const pathname = url.pathname; // Hasil: /anime/mushoku-eiyuu-sub-indo/
+      // Pisahkan berdasarkan '/' dan hapus string kosong (dari / pertama dan terakhir)
+      const parts = pathname.split('/').filter(Boolean); // Hasil: ['anime', 'mushoku-eiyuu-sub-indo']
+      
+      if (parts.length >= 2 && parts[0] === 'anime') {
+        cleanSlug = parts[1]; // Hasil: 'mushoku-eiyuu-sub-indo'
+      }
+    } catch (e) {
+      console.error("Gagal parse URL, mencoba fallback:", animeSlugFromApi, e);
+      // Fallback jika datanya bukan URL lengkap
+      const fallbackParts = animeSlugFromApi.split('/');
+      cleanSlug = fallbackParts.pop() || fallbackParts.pop(); // ambil bagian terakhir yang tidak kosong
+    }
+
+    if (!cleanSlug) {
+        console.warn('Tidak bisa mengekstrak slug bersih dari:', animeSlugFromApi);
+        return;
+    }
+    
+    // 3. Definisikan fungsi saveHistory (sekarang menggunakan cleanSlug)
+    const saveHistory = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        let animeImage = null;
+        let animeTitle = episodeTitle; // Fallback
+
+        // 4. Fetch detail anime (menggunakan cleanSlug)
+        try {
+          // INI PERBAIKANNYA: fetch menggunakan cleanSlug
+          const animeResponse = await fetch(`${apiUrl}/anime/${cleanSlug}`); 
+          
+          if (animeResponse.ok) {
+            const animeResult = await animeResponse.json();
+            animeImage = animeResult.data?.poster || null;
+            animeTitle = animeResult.data?.title || episodeTitle;
+            console.log("Berhasil fetch detail anime untuk gambar.");
+          } else {
+             console.warn(`Gagal fetch detail anime (${animeResponse.status}), riwayat akan disimpan tanpa gambar.`);
+          }
+        } catch (err) {
+          console.error('Gagal mengambil detail anime untuk poster:', err);
+        }
+
+        // 5. Simpan ke database (menggunakan cleanSlug)
+        await fetch('/api/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            animeId: cleanSlug, // INI PERBAIKANNYA: simpan slug bersih
+            episodeId: episodeSlug,
+            title: animeTitle, 
+            image: animeImage,
+          }),
+        });
+        
+        // Log yang lebih akurat
+        if (animeImage) {
+            console.log('Riwayat tontonan disimpan (dengan gambar)!', { animeId: cleanSlug });
+        } else {
+            console.log('Riwayat tontonan disimpan (tanpa gambar).', { animeId: cleanSlug });
+        }
+        
+      } catch (err) {
+        console.error('Gagal menyimpan riwayat', err);
+      }
+    };
+
+    // 6. Jalankan fungsi
+    saveHistory();
+  }
+}, [episodeData, sessionStatus, episodeSlug]); // Dependencies tetap sama
 
   if (isLoading) {
     return <WatchPageSkeleton />;

@@ -58,8 +58,8 @@ async function DashboardPage() {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 my-4 md:w-1/2">
-        <Link href="/users/dashboard/my-history" className="border px-3 py-2 bg-pink-600 rounded-xl hover:bg-pink-700 text-center">My History</Link>
-        <Link href="/users/dashboard/my-comment" className="border px-3 py-2 bg-pink-600 rounded-xl hover:bg-pink-700 text-center">My Comment</Link>
+        <Link href="/users/dashboard/my-history" className="border px-3 py-2 bg-pink-600 rounded-xl hover:bg-pink-700 text-center">Riwayat Tontonan</Link>
+        <Link href="/users/dashboard/my-comment" className="border px-3 py-2 bg-pink-600 rounded-xl hover:bg-pink-700 text-center">Riwayat Komentar</Link>
       </div>
     </section>
   );
