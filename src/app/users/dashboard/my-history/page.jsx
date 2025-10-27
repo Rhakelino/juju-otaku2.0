@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import Navigation from "@/app/components/Navigation";
 
 // Fungsi helper untuk mendapatkan data
 async function getWatchHistory(userId) {
@@ -42,6 +43,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="container mx-auto p-4">
+        <Navigation/>
       <h1 className="text-3xl font-bold mb-6">Riwayat Tontonan Saya</h1>
       
       {history.length === 0 ? (
