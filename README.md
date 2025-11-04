@@ -36,11 +36,12 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ```
+```
 
 ## Live Deployment
 
 ### Vercel
 
-Host your own instance of <a href="https://sankanime.com">Sankanime</a>  on vercel
+Host your own instance of <a href="https://juju-otaku2-0.vercel.app">/juju-otaku2.0</a>  on vercel
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SankaVollereii/juju-otaku2.0)
