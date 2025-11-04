@@ -52,7 +52,6 @@ Source code: **[https://github.com/Rhakelino/juju-otaku2.0](https://github.com/R
 Api Anime: **[https://www.sankavollerei.com/anime](https://www.sankavollerei.com/anime)**
 
 ---
-https://www.sankavollerei.com/anime
----
+
 
 
