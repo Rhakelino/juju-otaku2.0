@@ -42,6 +42,17 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ### Vercel
 
-Host your own instance of <a href="https://juju-otaku2-0.vercel.app">/juju-otaku2.0</a>  on vercel
+Host your own instance of <a href="https://juju-otaku2-0.vercel.app">juju-otaku2.0</a>  on vercel
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SankaVollereii/juju-otaku2.0)
+
+---
+
+### 💻 Source Code
+
+Source code: **[https://github.com/Rhakelino/juju-otaku2.0](https://github.com/Rhakelino/juju-otaku2.0)**
+Api Anime: **[https://www.sankavollerei.com/anime](https://www.sankavollerei.com/anime)**
+
+---
+
+
