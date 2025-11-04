@@ -48,8 +48,11 @@ Host your own instance of <a href="https://juju-otaku2-0.vercel.app">juju-otaku2
 ### 💻 Source Code
 
 Source code: **[https://github.com/Rhakelino/juju-otaku2.0](https://github.com/Rhakelino/juju-otaku2.0)**
+
 Api Anime: **[https://www.sankavollerei.com/anime](https://www.sankavollerei.com/anime)**
 
+---
+https://www.sankavollerei.com/anime
 ---
 
 
