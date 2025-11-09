@@ -74,7 +74,7 @@ const Home = async () => {
   // 4. Render halaman. 
   return (
     <>
-      <HeroSection />
+      {/* <HeroSection /> */}
       
       <Header title="Anime OnGoing" />
       {/* --- LOGIKA RENDER BARU --- */}
