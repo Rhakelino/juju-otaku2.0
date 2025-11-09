@@ -17,7 +17,7 @@ async function searchAnime(slug) {
     }
 
     const result = await response.json();
-    return result.search_results || [];
+    return result.data || [];
   } catch (error) {
     console.error("Gagal total saat mengambil hasil pencarian:", error);
     return [];
