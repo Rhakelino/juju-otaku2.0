@@ -2,10 +2,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-/**
- * Komponen AnimeCard baru.
- * Menerima props dari API Animasu.
- */
 const AnimeCard = ({ title, image, slug, episode, statusOrDay, type }) => {
 
   return (
@@ -20,7 +16,7 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type }) => {
             src={image} // Poster dari API
             alt={title}
             fill
-            sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105 bg-neutral-700"
           />
           
@@ -58,4 +54,4 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type }) => {
   )
 }
 
-export default AnimeCard
+export default AnimeCard;

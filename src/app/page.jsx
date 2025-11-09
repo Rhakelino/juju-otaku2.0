@@ -2,10 +2,11 @@ import AnimeCompleted from "@/app/components/AnimeCompleted";
 import AnimeOngoing from "@/app/components/AnimeOngoing";
 import Header from "@/app/components/Header";
 import HeroSection from "@/app/components/HeroSection";
+import React from 'react'; // <-- Tambahkan impor React untuk Suspense
 
 /**
  * Komponen Warning Sederhana
- * Kita buat di sini agar mudah
+ * (Teks Anda sudah saya sesuaikan)
  */
 function ApiWarningMessage({ sectionTitle }) {
   return (
@@ -16,6 +17,21 @@ function ApiWarningMessage({ sectionTitle }) {
       <p className="text-sm text-neutral-400">
         API mungkin kena limit atau *offline*. Silakan coba muat ulang nanti.(makanya donate admin🗿)
       </p>
+    </div>
+  );
+}
+
+/**
+ * Komponen Skeleton Sederhana
+ * Ini akan ditampilkan saat 'AnimeCompleted' sedang dimuat
+ */
+function AnimeListSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 my-12 mx-4 md:mx-24 gap-4 md:gap-6">
+      {/* Tampilkan 5 placeholder card */}
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="aspect-[2/3] w-full rounded-lg bg-neutral-800 animate-pulse"></div>
+      ))}
     </div>
   );
 }
@@ -77,27 +93,25 @@ const Home = async () => {
       <HeroSection />
       
       <Header title="Anime OnGoing" />
-      {/* --- LOGIKA RENDER BARU --- */}
+      {/* Bagian Ongoing dimuat langsung karena berada di atas */}
       {ongoingFetchFailed ? (
-        // Jika fetch GAGAL, tampilkan pesan warning
         <ApiWarningMessage sectionTitle="OnGoing" />
       ) : (
-        // Jika fetch BERHASIL, tampilkan komponen seperti biasa
-        // (Komponen <AnimeOngoing> akan menangani jika 'api' adalah array kosong)
         <AnimeOngoing api={animeOngoing}/>
       )}
-      {/* --- AKHIR LOGIKA RENDER --- */}
 
-      <Header title="Anime Completed" />
-      {/* --- LOGIKA RENDER BARU --- */}
-      {completedFetchFailed ? (
-        // Jika fetch GAGAL, tampilkan pesan warning
-        <ApiWarningMessage sectionTitle="Completed" />
-      ) : (
-        // Jika fetch BERHASIL, tampilkan komponen seperti biasa
-        <AnimeCompleted api={animeComplete}/>
-      )}
-      {/* --- AKHIR LOGIKA RENDER --- */}
+      {/* --- GUNAKAN SUSPENSE DI SINI --- */}
+      {/* Ini memberitahu Next.js untuk mengirim Hero/Ongoing dulu,
+          lalu men-streaming bagian Completed saat siap. */}
+      <React.Suspense fallback={<AnimeListSkeleton />}>
+        <Header title="Anime Completed" />
+        {completedFetchFailed ? (
+          <ApiWarningMessage sectionTitle="Completed" />
+        ) : (
+          <AnimeCompleted api={animeComplete}/>
+        )}
+      </React.Suspense>
+      {/* --- AKHIR SUSPENSE --- */}
     </>
   );
 }
