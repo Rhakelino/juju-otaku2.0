@@ -6,13 +6,12 @@ import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import Navigation from '@/app/components/Navigation';
 
+// Komponen Skeleton (Tidak Berubah)
 function WatchPageSkeleton() {
   return (
     <div className="min-h-screen bg-black text-white animate-pulse">
       <div className="container mx-auto px-4 py-8">
-
         <div className="aspect-video bg-slate-800 rounded-lg mb-4 shadow-lg"></div>
-
         <div className="bg-slate-900/50 p-4 rounded-lg mb-4">
           <div className="h-7 w-48 bg-slate-700 rounded mb-3"></div>
           <div className="flex flex-wrap gap-2">
@@ -21,7 +20,6 @@ function WatchPageSkeleton() {
             ))}
           </div>
         </div>
-
         <div className="bg-slate-900/50 p-4 rounded-lg mb-8">
           <div className="h-8 w-3/4 bg-slate-700 rounded mb-2"></div>
           <div className="flex justify-between items-center">
@@ -32,35 +30,12 @@ function WatchPageSkeleton() {
             </div>
           </div>
         </div>
-
-        <div className="bg-slate-900/50 p-4 rounded-lg">
-          <div className="h-8 w-40 bg-slate-700 border-b-2 border-slate-700 pb-2 mb-4 rounded"></div>
-          <div className="mb-4">
-            <div className="h-7 w-16 bg-slate-700 rounded mb-2"></div>
-            <div className="bg-slate-800 rounded-lg p-3 mb-3">
-              <div className="h-5 w-20 bg-slate-700 rounded mb-2"></div>
-              <div className="flex flex-wrap gap-2">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="h-7 w-24 bg-slate-700 rounded-md"></div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-slate-800 rounded-lg p-3 mb-3">
-              <div className="h-5 w-20 bg-slate-700 rounded mb-2"></div>
-              <div className="flex flex-wrap gap-2">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="h-7 w-24 bg-slate-700 rounded-md"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   );
 }
 
+// Komponen ErrorDisplay (Tidak Berubah)
 function ErrorDisplay({ message, animeSlug }) {
   return (
     <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center px-4">
@@ -81,10 +56,7 @@ function ErrorDisplay({ message, animeSlug }) {
 
 
 export default function WatchPage({ params }) {
-  // params may be a Promise when passed into a client component. Unwrap it with
-  // React.use(params) (Next.js recommends this) before accessing its properties.
   const resolvedParams = React.use ? React.use(params) : params;
-  // episodeSlug is a catch-all segment [...episodeSlug] so it's an array — take the last element
   const episodeSlugArray = resolvedParams?.episodeSlug;
   const episodeSlug = Array.isArray(episodeSlugArray) ? episodeSlugArray[episodeSlugArray.length - 1] : episodeSlugArray || null;
 
@@ -95,132 +67,139 @@ export default function WatchPage({ params }) {
   const [error, setError] = useState(null);
   const [currentStreamUrl, setCurrentStreamUrl] = useState(null);
   const [activeIdentifier, setActiveIdentifier] = useState('default-server');
+  const [isSwitchingServer, setIsSwitchingServer] = useState(false);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
+    if (!episodeSlug) {
+      setError("Slug episode tidak valid.");
+      setIsLoading(false);
+      return;
+    }
     async function fetchEpisodeData() {
       setIsLoading(true);
       setError(null);
       setCurrentStreamUrl(null);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiUrl}/episode/${episodeSlug}`);
         if (!response.ok) {
           throw new Error(`Gagal mengambil data. Status: ${response.status}`);
         }
         const result = await response.json();
         setEpisodeData(result.data);
-
         setCurrentStreamUrl(result.data.stream_url);
         setActiveIdentifier('default-server');
-
       } catch (err) {
         setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-
     fetchEpisodeData();
-  }, [episodeSlug]);
+  }, [episodeSlug, apiUrl]);
 
-  // Save viewing history for authenticated users when episode data is available
-  // DENGAN VERSI BARU INI:
+  // useEffect untuk Simpan Riwayat (Tidak Berubah)
+  useEffect(() => {
+    if (episodeData && sessionStatus === 'authenticated' && episodeSlug) {
+      const animeSlugFromApi = episodeData.anime?.slug;
+      const episodeTitle = episodeData.episode;
+      if (!animeSlugFromApi) {
+        console.warn('Data anime slug (dari API) tidak ada, riwayat tidak disimpan.');
+        return;
+      }
+      let cleanSlug = null;
+      try {
+        const url = new URL(animeSlugFromApi);
+        const pathname = url.pathname;
+        const parts = pathname.split('/').filter(Boolean);
+        if (parts.length >= 2 && parts[0] === 'anime') {
+          cleanSlug = parts[1];
+        }
+      } catch (e) {
+        const fallbackParts = animeSlugFromApi.split('/');
+        cleanSlug = fallbackParts.pop() || fallbackParts.pop();
+      }
+      if (!cleanSlug) {
+        console.warn('Tidak bisa mengekstrak slug bersih dari:', animeSlugFromApi);
+        return;
+      }
+      const saveHistory = async () => {
+        try {
+          let animeImage = null;
+          let animeTitle = episodeTitle;
+          try {
+            const animeResponse = await fetch(`${apiUrl}/anime/${cleanSlug}`);
+            if (animeResponse.ok) {
+              const animeResult = await animeResponse.json();
+              animeImage = animeResult.data?.poster || null;
+              animeTitle = animeResult.data?.title || episodeTitle;
+            }
+          } catch (err) {
+            console.error('Gagal mengambil detail anime untuk poster:', err);
+          }
+          await fetch('/api/history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              animeId: cleanSlug,
+              episodeId: episodeSlug,
+              title: animeTitle,
+              image: animeImage,
+            }),
+          });
+          console.log('Riwayat tontonan disimpan.', { animeId: cleanSlug });
+        } catch (err) {
+          console.error('Gagal menyimpan riwayat', err);
+        }
+      };
+      saveHistory();
+    }
+  }, [episodeData, sessionStatus, episodeSlug, apiUrl]);
 
-// Save viewing history for authenticated users when episode data is available
-// GANTI LAGI SELURUH BLOK useEffect INI
 
-// Save viewing history for authenticated users when episode data is available
-useEffect(() => {
-  // Pastikan semua data yang dibutuhkan ada
-  if (episodeData && sessionStatus === 'authenticated' && episodeSlug) {
-    
-    // 1. Ambil SLUG URL dari data episode
-    // Ini adalah URL LENGKAP, cth: "https://otakudesu.best/anime/mushoku-eiyuu-sub-indo/"
-    const animeSlugFromApi = episodeData.anime?.slug;
-    const episodeTitle = episodeData.episode; // Judul episode, mis: "One Piece Episode 1"
-
-    if (!animeSlugFromApi) {
-      console.warn('Data anime slug (dari API) tidak ada, riwayat tidak disimpan.');
+  // --- PERBAIKAN PADA FUNGSI INI ---
+// --- PERBAIKAN PADA FUNGSI INI ---
+  const handleServerClick = async (serverId, serverName) => {
+    if (!serverId) { 
+      setCurrentStreamUrl(episodeData.stream_url);
+      setActiveIdentifier('default-server');
       return;
     }
 
-    // 2. EKSTRAK slug bersih dari URL
-    let cleanSlug = null;
+    setIsSwitchingServer(true);
+    setActiveIdentifier(serverId);
+    setCurrentStreamUrl(null); 
+
     try {
-      const url = new URL(animeSlugFromApi);
-      const pathname = url.pathname; // Hasil: /anime/mushoku-eiyuu-sub-indo/
-      // Pisahkan berdasarkan '/' dan hapus string kosong (dari / pertama dan terakhir)
-      const parts = pathname.split('/').filter(Boolean); // Hasil: ['anime', 'mushoku-eiyuu-sub-indo']
+      // PERBAIKAN: Kita ambil 'host' dari apiUrl
+      // cth: "https://www.sankavollerei.com/anime" -> "https://www.sankavollerei.com"
+      const url = new URL(apiUrl);
+      const host = `${url.protocol}//${url.hostname}`; // Hasil: "https://www.sankavollerei.com"
+
+      // Gabungkan host dengan serverId
+      // cth: "https://www.sankavollerei.com" + "/anime/server/17..."
+      const correctUrl = `${host}${serverId}`;
       
-      if (parts.length >= 2 && parts[0] === 'anime') {
-        cleanSlug = parts[1]; // Hasil: 'mushoku-eiyuu-sub-indo'
+      const response = await fetch(correctUrl); // Gunakan URL yang sudah benar
+      if (!response.ok) {
+        throw new Error(`Server ${serverName} gagal dimuat.`);
       }
-    } catch (e) {
-      console.error("Gagal parse URL, mencoba fallback:", animeSlugFromApi, e);
-      // Fallback jika datanya bukan URL lengkap
-      const fallbackParts = animeSlugFromApi.split('/');
-      cleanSlug = fallbackParts.pop() || fallbackParts.pop(); // ambil bagian terakhir yang tidak kosong
-    }
-
-    if (!cleanSlug) {
-        console.warn('Tidak bisa mengekstrak slug bersih dari:', animeSlugFromApi);
-        return;
-    }
-    
-    // 3. Definisikan fungsi saveHistory (sekarang menggunakan cleanSlug)
-    const saveHistory = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        let animeImage = null;
-        let animeTitle = episodeTitle; // Fallback
-
-        // 4. Fetch detail anime (menggunakan cleanSlug)
-        try {
-          // INI PERBAIKANNYA: fetch menggunakan cleanSlug
-          const animeResponse = await fetch(`${apiUrl}/anime/${cleanSlug}`); 
-          
-          if (animeResponse.ok) {
-            const animeResult = await animeResponse.json();
-            animeImage = animeResult.data?.poster || null;
-            animeTitle = animeResult.data?.title || episodeTitle;
-            console.log("Berhasil fetch detail anime untuk gambar.");
-          } else {
-             console.warn(`Gagal fetch detail anime (${animeResponse.status}), riwayat akan disimpan tanpa gambar.`);
-          }
-        } catch (err) {
-          console.error('Gagal mengambil detail anime untuk poster:', err);
-        }
-
-        // 5. Simpan ke database (menggunakan cleanSlug)
-        await fetch('/api/history', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            animeId: cleanSlug, // INI PERBAIKANNYA: simpan slug bersih
-            episodeId: episodeSlug,
-            title: animeTitle, 
-            image: animeImage,
-          }),
-        });
-        
-        // Log yang lebih akurat
-        if (animeImage) {
-            console.log('Riwayat tontonan disimpan (dengan gambar)!', { animeId: cleanSlug });
-        } else {
-            console.log('Riwayat tontonan disimpan (tanpa gambar).', { animeId: cleanSlug });
-        }
-        
-      } catch (err) {
-        console.error('Gagal menyimpan riwayat', err);
+      const result = await response.json();
+      
+      if (result.url) {
+        setCurrentStreamUrl(result.url);
+      } else {
+         throw new Error(`Data stream dari ${serverName} tidak ditemukan.`);
       }
-    };
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setIsSwitchingServer(false);
+    }
+  };
 
-    // 6. Jalankan fungsi
-    saveHistory();
-  }
-}, [episodeData, sessionStatus, episodeSlug]); // Dependencies tetap sama
 
   if (isLoading) {
     return <WatchPageSkeleton />;
@@ -234,61 +213,40 @@ useEffect(() => {
     return <ErrorDisplay message="Data episode tidak ditemukan." />;
   }
 
-  // --- PERUBAHAN DIMULAI DI SINI ---
-  // Kita siapkan list server sebelum me-render
+  // --- LOGIKA serverButtons (Tidak Berubah, sudah benar) ---
   const serverButtons = [];
-
-  // 1. Tambahkan tombol Default (jika ada)
   if (episodeData.stream_url) {
     serverButtons.push({
       key: 'default-server',
       displayText: 'Default (Auto)',
-      url: episodeData.stream_url,
-      identifier: 'default-server',
+      serverId: null,
     });
   }
-
-  let hdCounter = 1;
-  let fhdCounter = 1;
-
-  if (episodeData.download_urls) {
-    Object.keys(episodeData.download_urls).forEach((format) => {
-      episodeData.download_urls[format].forEach((quality) => {
-
-        if (quality.resolution === '720p' || quality.resolution === '1080p') {
-          quality.urls.forEach((providerUrl) => {
-
-            let displayText = '';
-
-            if (quality.resolution === '720p') {
-              displayText = `HD ${hdCounter}`;
-              hdCounter++;
-            } else if (quality.resolution === '1080p') {
-              displayText = `FHD ${fhdCounter}`;
-              fhdCounter++;
-            }
-
-            const identifier = `${format}-${quality.resolution}-${providerUrl.provider}`;
-
-            serverButtons.push({
-              key: identifier,
-              displayText: displayText,
-              url: providerUrl.url,
-              identifier: identifier,
-            });
+  if (episodeData.stream_servers && Array.isArray(episodeData.stream_servers)) {
+    const sevenTwentyP_Group = episodeData.stream_servers.find(group =>
+      group.servers && group.servers.some(server => server.id.includes('720p'))
+    );
+    if (sevenTwentyP_Group) {
+      sevenTwentyP_Group.servers.forEach((server) => {
+        if (server.id.includes('720p')) {
+          serverButtons.push({
+            key: server.id,
+            displayText: `720p (${server.name})`,
+            serverId: server.id,
           });
         }
       });
-    });
+    } else {
+      console.warn("Tidak ditemukan grup server 720p di stream_servers.");
+    }
   }
-
 
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
-        <Navigation/>
+        <Navigation />
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">
-          {currentStreamUrl ? (
+          {currentStreamUrl && !isSwitchingServer && (
             <iframe
               src={currentStreamUrl}
               allowFullScreen
@@ -297,7 +255,14 @@ useEffect(() => {
               sandbox="allow-scripts allow-same-origin"
               key={currentStreamUrl}
             ></iframe>
-          ) : (
+          )}
+          {isSwitchingServer && (
+            <div className="w-full h-full flex flex-col justify-center items-center text-center p-4 bg-neutral-900">
+              <PlayCircleIcon className="h-16 w-16 text-pink-500 mb-4 animate-pulse" />
+              <h2 className="text-xl font-bold animate-pulse">Memuat Server...</h2>
+            </div>
+          )}
+          {!currentStreamUrl && !isSwitchingServer && (
             <div className="w-full h-full flex flex-col justify-center items-center text-center p-4 bg-neutral-900">
               <PlayCircleIcon className="h-16 w-16 text-pink-500 mb-4" />
               <h2 className="text-xl font-bold">Server Tidak Tersedia</h2>
@@ -318,32 +283,27 @@ useEffect(() => {
             <div className="flex flex-wrap gap-3 p-2 border-t border-neutral-700 pt-4">
               {serverButtons.map((button) => (
                 <button
-                  key={button.key}
+                  _ key={button.key}
                   type="button"
-                  onClick={() => {
-                    setCurrentStreamUrl(button.url);
-                    setActiveIdentifier(button.identifier);
-                  }}
+                  onClick={() => handleServerClick(button.serverId, button.displayText)}
+                  disabled={isSwitchingServer}
                   className={`
-                    px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ease-in-out
-                    flex items-center justify-center
-                    ${activeIdentifier === button.identifier
+                    px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ease-in-out
+                    flex items-center justify-center
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                    ${activeIdentifier === button.key
                       ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 ring-2 ring-pink-400'
                       : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white'
                     }
-                `}
+                `}
                 >
-                  {button.identifier === 'download' && (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                  )}
                   {button.displayText}
                 </button>
               ))}
             </div>
           </div>
         </div>
+
         <div className="bg-neutral-900 p-4 rounded-lg mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 truncate">{episodeData.episode}</h1>
           <div className="flex justify-between items-center">
@@ -400,6 +360,6 @@ useEffect(() => {
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
