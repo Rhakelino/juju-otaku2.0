@@ -1,3 +1,4 @@
+// File: src/app/dashboard/history/ContextMenu.js
 'use client';
 
 import React from 'react';
@@ -7,7 +8,7 @@ export default function ContextMenu({
   y,
   onClose,
   onDelete,
-  isDeleting,
+  isDeleting, // Menerima boolean
 }) {
   return (
     <>
@@ -28,10 +29,10 @@ export default function ContextMenu({
       >
         <button
           onClick={onDelete}
-          disabled={isDeleting}
+          disabled={isDeleting} // Nonaktifkan tombol saat menghapus
           className="block w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-neutral-700 disabled:opacity-50"
         >
-          {isDeleting ? 'Menghapus...' : 'Hapus Riwayat'}
+          {isDeleting ? 'Sedang menghapus...' : 'Hapus Riwayat'}
         </button>
       </div>
     </>
