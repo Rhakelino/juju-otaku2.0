@@ -1,9 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* LANGSUNG ATUR WARNA DARK MODE DI SINI */
+  --background: #1A1A29;       /* Latar belakang utama Anda */
+  --foreground: #ededed;       /* Teks putih Anda */
+  
+  /* Ini adalah warna lain dari desain Anda yang kita tambahkan sebelumnya */
+  --background-secondary: #2E2F40; 
+  --background-hero: #252736;
+  --foreground-secondary: #a1a1aa;
+  --border-color: #3f3f46;
+  --color-accent: #ec4899;
+  --color-accent-2: #3b82f6;
 }
+
 
 @theme inline {
   --color-background: var(--background);
@@ -12,15 +22,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1A1A29;
-    --foreground: #ededed;
-  }
-}
-
 body {
+  /* Sekarang body akan SELALU menggunakan var(--background) gelap */
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family akan diambil dari layout.js Anda */
 }
