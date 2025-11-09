@@ -1,4 +1,3 @@
-// File: src/app/dashboard/history/HistoryList.js
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -6,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ContextMenu from './ContextMenu';
 
-// Fungsi helper untuk format slug, sekarang ada di client
+// Fungsi helper untuk format slug (Tidak berubah)
 function formatEpisodeId(slug) {
   if (!slug) return "";
   const match = slug.match(/episode-(\d+)/);
@@ -31,7 +30,7 @@ export default function HistoryList({ initialHistory }) {
 
   const closeMenu = () => setMenu(null);
 
-  // Efek untuk menutup menu
+  // Efek untuk menutup menu (Tidak berubah)
   useEffect(() => {
     const handleClickOutside = () => closeMenu();
     if (menu) {
@@ -42,13 +41,11 @@ export default function HistoryList({ initialHistory }) {
     };
   }, [menu]);
 
-  // Handler untuk Klik Kanan (Desktop)
+  // Handler (Desktop & Mobile) (Tidak berubah)
   const handleContextMenu = (e, item) => {
     e.preventDefault();
     setMenu({ x: e.clientX, y: e.clientY, item });
   };
-
-  // --- Handler untuk Tahan Lama (Mobile) ---
   const handleTouchStart = (e, item) => {
     wasLongPress.current = false;
     if (timerRef.current) {
@@ -59,20 +56,16 @@ export default function HistoryList({ initialHistory }) {
       setMenu({ x: e.touches[0].clientX, y: e.touches[0].clientY, item });
     }, 700); // 700ms
   };
-
   const handleTouchEnd = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
   };
-
   const handleTouchMove = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
   };
-
-  // Mencegah navigasi Link jika itu adalah long press
   const handleClick = (e) => {
     if (wasLongPress.current) {
       e.preventDefault();
@@ -80,12 +73,12 @@ export default function HistoryList({ initialHistory }) {
     }
   };
 
-  // --- Handler untuk Hapus ---
+  // Handler untuk Hapus (Tidak berubah)
   const handleDelete = async () => {
-    if (deletingId || !menu) return; // Jangan lakukan apa-apa jika sedang menghapus
+    if (deletingId || !menu) return; 
 
     const itemToDelete = menu.item;
-    setDeletingId(itemToDelete.id); // Atur ID item yang sedang dihapus
+    setDeletingId(itemToDelete.id); 
 
     try {
       const response = await fetch(`/api/history?id=${itemToDelete.id}`, {
@@ -96,7 +89,6 @@ export default function HistoryList({ initialHistory }) {
         throw new Error('Gagal menghapus riwayat');
       }
 
-      // Hapus item dari state UI
       setItems((currentItems) =>
         currentItems.filter((item) => item.id !== itemToDelete.id)
       );
@@ -105,7 +97,7 @@ export default function HistoryList({ initialHistory }) {
       console.error(error);
       alert('Gagal menghapus riwayat.');
     } finally {
-      setDeletingId(null); // Reset state loading
+      setDeletingId(null); 
       closeMenu();
     }
   };
@@ -120,9 +112,26 @@ export default function HistoryList({ initialHistory }) {
             // Cek apakah item ini yang sedang dihapus
             const isCurrentlyDeleting = item.id === deletingId;
 
+            // --- INI ADALAH PERBAIKANNYA ---
+            // 1. Ambil data yang kita butuhkan dari 'item'
+            //    (Pastikan nama field ini sesuai dengan skema Prisma Anda)
+            const slug = item.animeId;     // Slug bersih (cth: "one-punch-man-s3")
+            const title = item.title;    // Judul anime (cth: "One Punch Man S3")
+            const image = item.image;    // URL Poster
+            
+            // 2. Buat Query String
+            const historyQueryParams = new URLSearchParams();
+            if (slug) historyQueryParams.set('slug', slug);
+            if (title) historyQueryParams.set('title', title);
+            if (image) historyQueryParams.set('image', image);
+            
+            const queryString = historyQueryParams.toString();
+            // --- AKHIR PERBAIKAN ---
+
             return (
               <Link
-                href={`/watch/${item.episodeId}`}
+                // 3. TERAPKAN KE HREF
+                href={`/watch/${item.episodeId}?${queryString}`}
                 key={item.id}
                 className="group relative" // Tambahkan 'relative' untuk overlay
                 // Tambahkan semua event handler
@@ -132,7 +141,7 @@ export default function HistoryList({ initialHistory }) {
                 onTouchMove={handleTouchMove}
                 onClick={handleClick}
               >
-                {/* --- BLOK LOADING STATE --- */}
+                {/* --- BLOK LOADING STATE (Tidak berubah) --- */}
                 {isCurrentlyDeleting && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-black/70 backdrop-blur-sm">
                     <span className="text-white text-sm animate-pulse">
@@ -142,7 +151,7 @@ export default function HistoryList({ initialHistory }) {
                 )}
                 {/* --- AKHIR BLOK LOADING --- */}
 
-                {/* Beri opacity jika sedang dihapus */}
+                {/* Beri opacity jika sedang dihapus (Tidak berubah) */}
                 <div className={`
                   aspect-video relative overflow-hidden rounded-lg
                   ${isCurrentlyDeleting ? 'opacity-50' : ''}
@@ -172,7 +181,7 @@ export default function HistoryList({ initialHistory }) {
         </div>
       )}
 
-      {/* Tampilkan menu jika 'menu' state tidak null */}
+      {/* Tampilkan menu jika 'menu' state tidak null (Tidak berubah) */}
       {menu && (
         <ContextMenu
           x={menu.x}

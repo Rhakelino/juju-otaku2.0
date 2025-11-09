@@ -2,7 +2,7 @@
 
 // 1. Impor 'useSearchParams'
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation'; // <-- TAMBAHKAN INI
+import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
@@ -54,11 +54,9 @@ function ErrorDisplay({ message, animeSlug }) {
 // 2. Buat Komponen Konten terpisah untuk menggunakan useSearchParams
 function WatchPageContent({ params, episodeSlug }) {
   const { data: session, status: sessionStatus } = useSession();
-
-  // 3. Ambil searchParams
   const searchParams = useSearchParams();
 
-  // State
+  // State (Tidak berubah)
   const [episodeTitle, setEpisodeTitle] = useState(null);
   const [servers, setServers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,11 +64,8 @@ function WatchPageContent({ params, episodeSlug }) {
   const [currentStreamUrl, setCurrentStreamUrl] = useState(null);
   const [activeIdentifier, setActiveIdentifier] = useState(null);
   const [isSwitchingServer, setIsSwitchingServer] = useState(false);
-
   const [isValidPrev, setIsValidPrev] = useState(false);
   const [isValidNext, setIsValidNext] = useState(false);
-
-  // State untuk info riwayat (akan diisi dari URL)
   const [animeInfo, setAnimeInfo] = useState(null);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -89,7 +84,7 @@ function WatchPageContent({ params, episodeSlug }) {
       setCurrentStreamUrl(null);
       setServers([]);
       setEpisodeTitle(null);
-      setAnimeInfo(null); // Reset info anime
+      // setAnimeInfo(null); // Kita tidak reset di sini lagi
       setIsValidPrev(false);
       setIsValidNext(false);
 
@@ -112,21 +107,31 @@ function WatchPageContent({ params, episodeSlug }) {
           setCurrentStreamUrl(null);
         }
 
-        // --- LOGIKA BARU: Baca data riwayat dari URL ---
-        // Kita tidak perlu fetch kedua atau menebak slug lagi!
+        // --- LOGIKA BARU: Baca data riwayat dari URL atau Session Storage ---
         const slugFromUrl = searchParams.get('slug');
         const titleFromUrl = searchParams.get('title');
         const imageFromUrl = searchParams.get('image');
 
-        // Jika semua data ada di URL, set state animeInfo
         if (slugFromUrl && titleFromUrl && imageFromUrl) {
-          setAnimeInfo({
-            slug: slugFromUrl,  // cth: "one-punch-man-s3"
-            title: titleFromUrl, // cth: "One Punch Man S3"
-            image: imageFromUrl  // cth: "http://.../poster.jpg"
-          });
+          // KASUS 1: Datang dari Halaman Detail (URL Punya Params)
+          const info = {
+            slug: slugFromUrl,
+            title: titleFromUrl,
+            image: imageFromUrl
+          };
+          setAnimeInfo(info);
+          // SIMPAN ke sessionStorage untuk episode berikutnya
+          sessionStorage.setItem('lastWatchedAnimeInfo', JSON.stringify(info));
         } else {
-          console.warn("Data riwayat (slug, title, image) tidak ditemukan di query params URL.");
+          // KASUS 2: Pindah dari Ep 1 -> Ep 2 (URL Polosan)
+          // Coba AMBIL DARI sessionStorage
+          const cachedInfo = sessionStorage.getItem('lastWatchedAnimeInfo');
+          if (cachedInfo) {
+            setAnimeInfo(JSON.parse(cachedInfo));
+          } else {
+            // Jika tidak ada di cache (misal: user langsung ke URL nonton)
+            console.warn("Data riwayat (slug, title, image) tidak ditemukan di query params ATAU session storage.");
+          }
         }
         // --- AKHIR LOGIKA BARU ---
 
@@ -136,36 +141,34 @@ function WatchPageContent({ params, episodeSlug }) {
         setIsLoading(false);
       }
     }
-
+    
     fetchEpisodeData();
-    // 'searchParams' ditambahkan sebagai dependensi
-  }, [episodeSlug, apiUrl, searchParams]);
+  }, [episodeSlug, apiUrl, searchParams]); // 'searchParams' tetap di sini
 
 
   // --- useEffect Simpan Riwayat ---
-  // Ini akan terpicu setelah 'animeInfo' di-set dari URL
+  // (Tidak berubah, ini akan bekerja setelah 'animeInfo' di-set)
   useEffect(() => {
-    // Pastikan semua data (termasuk gambar) ada
     if (animeInfo && animeInfo.slug && animeInfo.title && animeInfo.image && sessionStatus !== 'loading' && session) {
-
+      
       const saveHistory = async () => {
         try {
           await fetch('/api/history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              animeId: animeInfo.slug,   // Data bersih dari URL
+              animeId: animeInfo.slug,
               episodeId: episodeSlug,
-              title: animeInfo.title,    // Data bersih dari URL
-              image: animeInfo.image,    // Data bersih dari URL
+              title: animeInfo.title,
+              image: animeInfo.image,
             }),
           });
-          console.log("Riwayat disimpan DENGAN GAMBAR (dari URL). Cek database Anda.");
+          console.log(`Riwayat disimpan (${episodeSlug}). Cek database Anda.`);
         } catch (err) {
           console.error("Gagal menyimpan riwayat:", err);
         }
       };
-
+      
       saveHistory();
     }
   }, [animeInfo, session, sessionStatus, episodeSlug]);
@@ -200,7 +203,6 @@ function WatchPageContent({ params, episodeSlug }) {
     const checkEpisodeExistence = async () => {
       if (prevSlug) {
         try {
-          // Ganti ke 'HEAD' untuk efisiensi jika backend mendukungnya
           const response = await fetch(`${apiUrl}/episode/${prevSlug}`, { method: 'HEAD' });
           setIsValidPrev(response.ok);
         } catch (error) {
@@ -212,7 +214,6 @@ function WatchPageContent({ params, episodeSlug }) {
       }
       if (nextSlug) {
         try {
-          // Ganti ke 'HEAD' untuk efisiensi jika backend mendukungnya
           const response = await fetch(`${apiUrl}/episode/${nextSlug}`, { method: 'HEAD' });
           setIsValidNext(response.ok);
         } catch (error) {
@@ -237,12 +238,13 @@ function WatchPageContent({ params, episodeSlug }) {
     return <ErrorDisplay message="Data episode tidak ditemukan atau tidak ada server." animeSlug={null} />;
   }
 
-  // --- RETURN JSX (Tidak Berubah) ---
+  // --- RETURN JSX ---
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
         <Navigation />
 
+        {/* Player (Tidak berubah) */}
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">
           {isSwitchingServer && (
             <div className="w-full h-full flex flex-col justify-center items-center text-center p-4 bg-neutral-900">
@@ -267,6 +269,7 @@ function WatchPageContent({ params, episodeSlug }) {
           )}
         </div>
 
+        {/* Server List (Tidak berubah) */}
         <div className="bg-neutral-900 p-4 rounded-lg mb-4">
           <h2 className="text-lg font-semibold mb-3">Pilih Server</h2>
           <div className='w-full h-full p-4 bg-neutral-800 rounded-lg shadow-xl'>
@@ -283,8 +286,8 @@ function WatchPageContent({ params, episodeSlug }) {
                   onClick={() => handleServerClick(server)}
                   disabled={isSwitchingServer}
                   className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ease-in-out flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${activeIdentifier === server.url
-                    ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 ring-2 ring-pink-400'
-                    : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white'
+                      ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 ring-2 ring-pink-400'
+                      : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white'
                     }`}
                 >
                   {server.name}
@@ -294,23 +297,26 @@ function WatchPageContent({ params, episodeSlug }) {
           </div>
         </div>
 
+        {/* Detail Episode & Navigasi */}
         <div className="bg-neutral-900 p-4 rounded-lg mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 truncate">{episodeTitle || 'Memuat judul...'}</h1>
           <div className="flex justify-between items-center">
             <span className="text-sm text-pink-400">Animasu API</span>
             <div className="flex space-x-2">
+              
+              {/* --- PERBAIKAN LINK: Hapus searchParams.toString() --- */}
+              {/* Kita tidak perlu lagi meneruskan query params secara manual */}
+              
               {isValidPrev && (
-                // Arahkan 'prev' & 'next' dengan query params juga
-                <Link href={`/watch/${prevSlug}?${searchParams.toString()}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
+                <Link href={`/watch/${prevSlug}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
                   <ChevronLeftIcon className="h-6 w-6" />
                 </Link>
               )}
               {isValidNext && (
-                // Arahkan 'prev' & 'next' dengan query params juga
-                <Link href={`/watch/${nextSlug}?${searchParams.toString()}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
-                  <ChevronRightIcon className="h-6 w-6" />
-                </Link>
-              )}
+                <Link href={`/watch/${nextSlug}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
+                <ChevronRightIcon className="h-6 w-6" />
+              </Link>
+            )}
             </div>
           </div>
         </div>
@@ -320,8 +326,7 @@ function WatchPageContent({ params, episodeSlug }) {
   );
 }
 
-// 4. Bungkus ekspor default dengan Suspense untuk useSearchParams
-// Ini adalah praktik standar di Next.js App Router
+// Bungkus ekspor default dengan Suspense (Tidak berubah)
 export default function WatchPage({ params }) {
   const resolvedParams = React.use ? React.use(params) : params;
   const episodeSlugArray = resolvedParams?.episodeSlug;
