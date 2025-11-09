@@ -17,7 +17,7 @@ async function searchAnime(slug) {
     }
 
     const result = await response.json();
-    return result.data || [];
+    return result.animes || [];
   } catch (error) {
     console.error("Gagal total saat mengambil hasil pencarian:", error);
     return [];
@@ -50,10 +50,10 @@ export default async function SearchPage({ params: ParamsPromise }) {
                 <AnimeCard
                   key={processedSlug || anime.title}
                   slug={processedSlug}
+                  type={anime.type}
                   title={anime.title}
                   image={anime.poster}
-                  releaseDay={anime.status || 'N/A'}
-                  newestReleaseDate={anime.release_date ? anime.release_date.split(',')[0] : null}
+                  episode={anime.episode}
                 />
               );
             })}

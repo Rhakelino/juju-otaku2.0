@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+// 1. Impor 'useSearchParams'
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation'; // <-- TAMBAHKAN INI
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import Navigation from '@/app/components/Navigation';
+
 
 // Komponen Skeleton (Tidak Berubah)
 function WatchPageSkeleton() {
@@ -41,228 +44,221 @@ function ErrorDisplay({ message, animeSlug }) {
     <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center px-4">
       <h1 className="text-2xl font-bold mb-4 text-red-500">Terjadi Kesalahan</h1>
       <p className="text-neutral-400 mb-8">{message}</p>
-      {animeSlug ? (
-        <Link href={`/anime/${animeSlug}`} className="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition">
-          Kembali ke Halaman Anime
-        </Link>
-      ) : (
-        <Link href="/" className="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition">
-          Kembali ke Beranda
-        </Link>
-      )}
+      <Link href="/" className="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition">
+        Kembali ke Beranda
+      </Link>
     </div>
   );
 }
 
-
-export default function WatchPage({ params }) {
-  const resolvedParams = React.use ? React.use(params) : params;
-  const episodeSlugArray = resolvedParams?.episodeSlug;
-  const episodeSlug = Array.isArray(episodeSlugArray) ? episodeSlugArray[episodeSlugArray.length - 1] : episodeSlugArray || null;
-
+// 2. Buat Komponen Konten terpisah untuk menggunakan useSearchParams
+function WatchPageContent({ params, episodeSlug }) {
   const { data: session, status: sessionStatus } = useSession();
 
-  const [episodeData, setEpisodeData] = useState(null);
+  // 3. Ambil searchParams
+  const searchParams = useSearchParams();
+
+  // State
+  const [episodeTitle, setEpisodeTitle] = useState(null);
+  const [servers, setServers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentStreamUrl, setCurrentStreamUrl] = useState(null);
-  const [activeIdentifier, setActiveIdentifier] = useState('default-server');
+  const [activeIdentifier, setActiveIdentifier] = useState(null);
   const [isSwitchingServer, setIsSwitchingServer] = useState(false);
+
+  const [isValidPrev, setIsValidPrev] = useState(false);
+  const [isValidNext, setIsValidNext] = useState(false);
+
+  // State untuk info riwayat (akan diisi dari URL)
+  const [animeInfo, setAnimeInfo] = useState(null);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+  // useEffect untuk Fetch Data (HANYA FETCH 1)
   useEffect(() => {
     if (!episodeSlug) {
       setError("Slug episode tidak valid.");
       setIsLoading(false);
       return;
     }
+
     async function fetchEpisodeData() {
       setIsLoading(true);
       setError(null);
       setCurrentStreamUrl(null);
+      setServers([]);
+      setEpisodeTitle(null);
+      setAnimeInfo(null); // Reset info anime
+      setIsValidPrev(false);
+      setIsValidNext(false);
+
       try {
-        const response = await fetch(`${apiUrl}/episode/${episodeSlug}`);
-        if (!response.ok) {
-          throw new Error(`Gagal mengambil data. Status: ${response.status}`);
+        // --- HANYA FETCH 1: Ambil Data Episode (Streams) ---
+        const episodeResponse = await fetch(`${apiUrl}/episode/${episodeSlug}`);
+        if (!episodeResponse.ok) {
+          throw new Error(`Gagal mengambil data episode. Status: ${episodeResponse.status}`);
         }
-        const result = await response.json();
-        setEpisodeData(result.data);
-        setCurrentStreamUrl(result.data.stream_url);
-        setActiveIdentifier('default-server');
+        const episodeData = await episodeResponse.json();
+
+        setEpisodeTitle(episodeData.title);
+        setServers(episodeData.streams || []);
+
+        const defaultStream = episodeData.streams?.[0];
+        if (defaultStream) {
+          setCurrentStreamUrl(defaultStream.url);
+          setActiveIdentifier(defaultStream.url);
+        } else {
+          setCurrentStreamUrl(null);
+        }
+
+        // --- LOGIKA BARU: Baca data riwayat dari URL ---
+        // Kita tidak perlu fetch kedua atau menebak slug lagi!
+        const slugFromUrl = searchParams.get('slug');
+        const titleFromUrl = searchParams.get('title');
+        const imageFromUrl = searchParams.get('image');
+
+        // Jika semua data ada di URL, set state animeInfo
+        if (slugFromUrl && titleFromUrl && imageFromUrl) {
+          setAnimeInfo({
+            slug: slugFromUrl,  // cth: "one-punch-man-s3"
+            title: titleFromUrl, // cth: "One Punch Man S3"
+            image: imageFromUrl  // cth: "http://.../poster.jpg"
+          });
+        } else {
+          console.warn("Data riwayat (slug, title, image) tidak ditemukan di query params URL.");
+        }
+        // --- AKHIR LOGIKA BARU ---
+
       } catch (err) {
         setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchEpisodeData();
-  }, [episodeSlug, apiUrl]);
 
-  // useEffect untuk Simpan Riwayat (Tidak Berubah)
+    fetchEpisodeData();
+    // 'searchParams' ditambahkan sebagai dependensi
+  }, [episodeSlug, apiUrl, searchParams]);
+
+
+  // --- useEffect Simpan Riwayat ---
+  // Ini akan terpicu setelah 'animeInfo' di-set dari URL
   useEffect(() => {
-    if (episodeData && sessionStatus === 'authenticated' && episodeSlug) {
-      const animeSlugFromApi = episodeData.anime?.slug;
-      const episodeTitle = episodeData.episode;
-      if (!animeSlugFromApi) {
-        console.warn('Data anime slug (dari API) tidak ada, riwayat tidak disimpan.');
-        return;
-      }
-      let cleanSlug = null;
-      try {
-        const url = new URL(animeSlugFromApi);
-        const pathname = url.pathname;
-        const parts = pathname.split('/').filter(Boolean);
-        if (parts.length >= 2 && parts[0] === 'anime') {
-          cleanSlug = parts[1];
-        }
-      } catch (e) {
-        const fallbackParts = animeSlugFromApi.split('/');
-        cleanSlug = fallbackParts.pop() || fallbackParts.pop();
-      }
-      if (!cleanSlug) {
-        console.warn('Tidak bisa mengekstrak slug bersih dari:', animeSlugFromApi);
-        return;
-      }
+    // Pastikan semua data (termasuk gambar) ada
+    if (animeInfo && animeInfo.slug && animeInfo.title && animeInfo.image && sessionStatus !== 'loading' && session) {
+
       const saveHistory = async () => {
         try {
-          let animeImage = null;
-          let animeTitle = episodeTitle;
-          try {
-            const animeResponse = await fetch(`${apiUrl}/anime/${cleanSlug}`);
-            if (animeResponse.ok) {
-              const animeResult = await animeResponse.json();
-              animeImage = animeResult.data?.poster || null;
-              animeTitle = animeResult.data?.title || episodeTitle;
-            }
-          } catch (err) {
-            console.error('Gagal mengambil detail anime untuk poster:', err);
-          }
           await fetch('/api/history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              animeId: cleanSlug,
+              animeId: animeInfo.slug,   // Data bersih dari URL
               episodeId: episodeSlug,
-              title: animeTitle,
-              image: animeImage,
+              title: animeInfo.title,    // Data bersih dari URL
+              image: animeInfo.image,    // Data bersih dari URL
             }),
           });
-          console.log('Riwayat tontonan disimpan.', { animeId: cleanSlug });
+          console.log("Riwayat disimpan DENGAN GAMBAR (dari URL). Cek database Anda.");
         } catch (err) {
-          console.error('Gagal menyimpan riwayat', err);
+          console.error("Gagal menyimpan riwayat:", err);
         }
       };
+
       saveHistory();
     }
-  }, [episodeData, sessionStatus, episodeSlug, apiUrl]);
+  }, [animeInfo, session, sessionStatus, episodeSlug]);
 
 
-  // --- PERBAIKAN PADA FUNGSI INI ---
-// --- PERBAIKAN PADA FUNGSI INI ---
-  const handleServerClick = async (serverId, serverName) => {
-    if (!serverId) { 
-      setCurrentStreamUrl(episodeData.stream_url);
-      setActiveIdentifier('default-server');
-      return;
-    }
+  // --- Sisa kode tidak berubah ---
 
+  // Fungsi Handle Klik Server
+  const handleServerClick = (server) => {
     setIsSwitchingServer(true);
-    setActiveIdentifier(serverId);
-    setCurrentStreamUrl(null); 
-
-    try {
-      // PERBAIKAN: Kita ambil 'host' dari apiUrl
-      // cth: "https://www.sankavollerei.com/anime" -> "https://www.sankavollerei.com"
-      const url = new URL(apiUrl);
-      const host = `${url.protocol}//${url.hostname}`; // Hasil: "https://www.sankavollerei.com"
-
-      // Gabungkan host dengan serverId
-      // cth: "https://www.sankavollerei.com" + "/anime/server/17..."
-      const correctUrl = `${host}${serverId}`;
-      
-      const response = await fetch(correctUrl); // Gunakan URL yang sudah benar
-      if (!response.ok) {
-        throw new Error(`Server ${serverName} gagal dimuat.`);
-      }
-      const result = await response.json();
-      
-      if (result.url) {
-        setCurrentStreamUrl(result.url);
-      } else {
-         throw new Error(`Data stream dari ${serverName} tidak ditemukan.`);
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-    } finally {
+    setActiveIdentifier(server.url);
+    setCurrentStreamUrl(server.url);
+    setTimeout(() => {
       setIsSwitchingServer(false);
-    }
+    }, 300);
   };
+
+  // Logika Membuat Slug Next/Prev
+  const { prevSlug, nextSlug } = useMemo(() => {
+    if (!episodeSlug) return { prevSlug: null, nextSlug: null };
+    const match = episodeSlug.match(/-episode-(\d+)$/);
+    if (!match) return { prevSlug: null, nextSlug: null };
+    const baseSlug = episodeSlug.substring(0, match.index);
+    const currentEpisodeNumber = parseInt(match[1], 10);
+    const nextSlug = `${baseSlug}-episode-${currentEpisodeNumber + 1}`;
+    const prevSlug = currentEpisodeNumber > 1 ? `${baseSlug}-episode-${currentEpisodeNumber - 1}` : null;
+    return { prevSlug, nextSlug };
+  }, [episodeSlug]);
+
+  // useEffect untuk Memverifikasi Keberadaan Episode Next/Prev
+  useEffect(() => {
+    const checkEpisodeExistence = async () => {
+      if (prevSlug) {
+        try {
+          // Ganti ke 'HEAD' untuk efisiensi jika backend mendukungnya
+          const response = await fetch(`${apiUrl}/episode/${prevSlug}`, { method: 'HEAD' });
+          setIsValidPrev(response.ok);
+        } catch (error) {
+          console.error("Error checking prevSlug:", error);
+          setIsValidPrev(false);
+        }
+      } else {
+        setIsValidPrev(false);
+      }
+      if (nextSlug) {
+        try {
+          // Ganti ke 'HEAD' untuk efisiensi jika backend mendukungnya
+          const response = await fetch(`${apiUrl}/episode/${nextSlug}`, { method: 'HEAD' });
+          setIsValidNext(response.ok);
+        } catch (error) {
+          console.error("Error checking nextSlug:", error);
+          setIsValidNext(false);
+        }
+      } else {
+        setIsValidNext(false);
+      }
+    };
+    if (prevSlug || nextSlug) checkEpisodeExistence();
+  }, [prevSlug, nextSlug, apiUrl]);
 
 
   if (isLoading) {
     return <WatchPageSkeleton />;
   }
-
   if (error) {
-    return <ErrorDisplay message={error} animeSlug={episodeData?.anime?.slug} />;
+    return <ErrorDisplay message={error} animeSlug={null} />;
+  }
+  if (!servers || servers.length === 0) {
+    return <ErrorDisplay message="Data episode tidak ditemukan atau tidak ada server." animeSlug={null} />;
   }
 
-  if (!episodeData) {
-    return <ErrorDisplay message="Data episode tidak ditemukan." />;
-  }
-
-  // --- LOGIKA serverButtons (Tidak Berubah, sudah benar) ---
-  const serverButtons = [];
-  if (episodeData.stream_url) {
-    serverButtons.push({
-      key: 'default-server',
-      displayText: 'Default (Auto)',
-      serverId: null,
-    });
-  }
-  if (episodeData.stream_servers && Array.isArray(episodeData.stream_servers)) {
-    const sevenTwentyP_Group = episodeData.stream_servers.find(group =>
-      group.servers && group.servers.some(server => server.id.includes('720p'))
-    );
-    if (sevenTwentyP_Group) {
-      sevenTwentyP_Group.servers.forEach((server) => {
-        if (server.id.includes('720p')) {
-          serverButtons.push({
-            key: server.id,
-            displayText: `720p (${server.name})`,
-            serverId: server.id,
-          });
-        }
-      });
-    } else {
-      console.warn("Tidak ditemukan grup server 720p di stream_servers.");
-    }
-  }
-
+  // --- RETURN JSX (Tidak Berubah) ---
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
         <Navigation />
+
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">
-          {currentStreamUrl && !isSwitchingServer && (
-            <iframe
-              src={currentStreamUrl}
-              allowFullScreen
-              scrolling="no"
-              className="w-full h-full border-0"
-              sandbox="allow-scripts allow-same-origin"
-              key={currentStreamUrl}
-            ></iframe>
-          )}
           {isSwitchingServer && (
             <div className="w-full h-full flex flex-col justify-center items-center text-center p-4 bg-neutral-900">
               <PlayCircleIcon className="h-16 w-16 text-pink-500 mb-4 animate-pulse" />
               <h2 className="text-xl font-bold animate-pulse">Memuat Server...</h2>
             </div>
           )}
-          {!currentStreamUrl && !isSwitchingServer && (
+          {!isSwitchingServer && currentStreamUrl && (
+            <iframe
+              src={currentStreamUrl}
+              allowFullScreen
+              className="w-full h-full border-0"
+              key={currentStreamUrl}
+            ></iframe>
+          )}
+          {!isSwitchingServer && !currentStreamUrl && (
             <div className="w-full h-full flex flex-col justify-center items-center text-center p-4 bg-neutral-900">
               <PlayCircleIcon className="h-16 w-16 text-pink-500 mb-4" />
               <h2 className="text-xl font-bold">Server Tidak Tersedia</h2>
@@ -276,28 +272,22 @@ export default function WatchPage({ params }) {
           <div className='w-full h-full p-4 bg-neutral-800 rounded-lg shadow-xl'>
             <div className='mb-4 p-3 bg-neutral-700 rounded-md border border-yellow-500/50 flex items-start'>
               <p className='text-sm text-neutral-200 font-medium'>
-                Server error? Coba beralih ke server lain di bawah ini. Jika masalah masih terjadi pada semua server yang tersedia, Anda disarankan untuk menggunakan opsi download.
+                Server error? Coba beralih ke server lain di bawah ini.
               </p>
             </div>
-
             <div className="flex flex-wrap gap-3 p-2 border-t border-neutral-700 pt-4">
-              {serverButtons.map((button) => (
+              {servers.map((server) => (
                 <button
-                  _ key={button.key}
+                  key={server.url}
                   type="button"
-                  onClick={() => handleServerClick(button.serverId, button.displayText)}
+                  onClick={() => handleServerClick(server)}
                   disabled={isSwitchingServer}
-                  className={`
-                    px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ease-in-out
-                    flex items-center justify-center
-                      disabled:opacity-50 disabled:cursor-not-allowed
-                    ${activeIdentifier === button.key
-                      ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 ring-2 ring-pink-400'
-                      : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white'
-                    }
-                `}
+                  className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ease-in-out flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${activeIdentifier === server.url
+                    ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 ring-2 ring-pink-400'
+                    : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white'
+                    }`}
                 >
-                  {button.displayText}
+                  {server.name}
                 </button>
               ))}
             </div>
@@ -305,21 +295,19 @@ export default function WatchPage({ params }) {
         </div>
 
         <div className="bg-neutral-900 p-4 rounded-lg mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2 truncate">{episodeData.episode}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 truncate">{episodeTitle || 'Memuat judul...'}</h1>
           <div className="flex justify-between items-center">
-            {episodeData.anime && episodeData.anime.slug && (
-              <Link href={`/anime/${episodeData.anime.slug}`} className="text-sm text-pink-400 hover:underline">
-                Kembali ke detail anime
-              </Link>
-            )}
+            <span className="text-sm text-pink-400">Animasu API</span>
             <div className="flex space-x-2">
-              {episodeData.has_previous_episode && episodeData.previous_episode && (
-                <Link href={`/watch/${episodeData.previous_episode.slug}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
+              {isValidPrev && (
+                // Arahkan 'prev' & 'next' dengan query params juga
+                <Link href={`/watch/${prevSlug}?${searchParams.toString()}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
                   <ChevronLeftIcon className="h-6 w-6" />
                 </Link>
               )}
-              {episodeData.has_next_episode && episodeData.next_episode && (
-                <Link href={`/watch/${episodeData.next_episode.slug}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
+              {isValidNext && (
+                // Arahkan 'prev' & 'next' dengan query params juga
+                <Link href={`/watch/${nextSlug}?${searchParams.toString()}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
                   <ChevronRightIcon className="h-6 w-6" />
                 </Link>
               )}
@@ -327,39 +315,21 @@ export default function WatchPage({ params }) {
           </div>
         </div>
 
-        <div className="bg-neutral-900 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold text-pink-500 border-b-2 border-neutral-700 pb-2 mb-4">
-            Download Links
-          </h2>
-          {episodeData.download_urls && Object.keys(episodeData.download_urls).length > 0 ? (
-            Object.keys(episodeData.download_urls).map((format) => (
-              <div key={format} className="mb-4">
-                <h3 className="font-bold text-lg uppercase text-neutral-300 mb-2">{format}</h3>
-                {episodeData.download_urls[format].map((download, downloadIndex) => (
-                  <div key={downloadIndex} className="bg-neutral-800 rounded-lg p-3 mb-3">
-                    <p className="font-semibold text-white mb-2">{download.resolution}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {download.urls.map((link) => (
-                        <a
-                          key={link.provider}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-blue-600 text-white text-sm px-3 py-1 rounded-md hover:bg-blue-700 transition"
-                        >
-                          {link.provider}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))
-          ) : (
-            <p className="text-neutral-500">Tidak ada link download tersedia.</p>
-          )}
-        </div>
       </div>
     </div >
+  );
+}
+
+// 4. Bungkus ekspor default dengan Suspense untuk useSearchParams
+// Ini adalah praktik standar di Next.js App Router
+export default function WatchPage({ params }) {
+  const resolvedParams = React.use ? React.use(params) : params;
+  const episodeSlugArray = resolvedParams?.episodeSlug;
+  const episodeSlug = Array.isArray(episodeSlugArray) ? episodeSlugArray[episodeSlugArray.length - 1] : episodeSlugArray || null;
+
+  return (
+    <React.Suspense fallback={<WatchPageSkeleton />}>
+      <WatchPageContent params={params} episodeSlug={episodeSlug} />
+    </React.Suspense>
   );
 }

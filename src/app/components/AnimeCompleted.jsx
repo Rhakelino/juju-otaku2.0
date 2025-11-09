@@ -11,9 +11,9 @@ const AnimeCompleted = ({ api }) => {
           title={anime.title}
           image={anime.poster}
           slug={anime.slug}
-          episodeCount={anime.episode_count}
-          rating={anime.rating} 
-          views={anime.last_release_date} 
+          episode={anime.episode}
+          type={anime.type}
+          statusOrDay={anime.release_day}
         />
       ))}
     </div>

@@ -33,7 +33,7 @@ const HeroSection = () => {
           </div>
           <div className="flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-4 relative z-20">
             <Link
-              href="/anime"
+              href="/animelist"
               className="bg-pink-500 text-white px-6 py-2 lg:py-3 rounded-full flex items-center justify-center"
             >
               Database Anime A - Z

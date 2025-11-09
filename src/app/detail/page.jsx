@@ -9,7 +9,7 @@ const Page = async () => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             // Pastikan URL sudah benar
-            const response = await fetch(`${apiUrl}/unlimited`, { 
+            const response = await fetch(`${apiUrl}/animelist?letter=A&page=1`, { 
                 cache: 'no-store' // Opsional: Untuk memastikan data selalu baru
             }); 
             
@@ -19,7 +19,8 @@ const Page = async () => {
             
             const result = await response.json();
             // Kita kembalikan array list utama
-            return result.data.list; 
+            console.log(result)
+            return result.animes; 
             
         } catch (error) {
             console.error("Gagal mengambil data anime:", error);

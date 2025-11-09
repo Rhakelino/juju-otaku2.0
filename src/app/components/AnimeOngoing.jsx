@@ -1,4 +1,3 @@
-// File: AnimeOngoing.jsx
 import React from 'react'
 import AnimeCard from './AnimeCard'
 
@@ -11,8 +10,9 @@ const AnimeOngoing = ({ api }) => {
           title={anime.title}
           image={anime.poster}
           slug={anime.slug}
-          currentEpisode={anime.current_episode}
-          views={anime.release_day}
+          type={anime.type}
+          episode={anime.episode}
+          statusOrDay={anime.release_day}
         />
       ))}
     </div>
