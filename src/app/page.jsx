@@ -1,8 +1,10 @@
+"use client"; // <-- INI KUNCINYA: Mengubah ke Client Component
+
+import React, { useState, useEffect } from 'react'; // Impor hook
 import AnimeCompleted from "@/app/components/AnimeCompleted";
 import AnimeOngoing from "@/app/components/AnimeOngoing";
 import Header from "@/app/components/Header";
 import HeroSection from "@/app/components/HeroSection";
-import React from 'react'; // <-- Tambahkan impor React untuk Suspense
 
 /**
  * Komponen Warning Sederhana
@@ -37,55 +39,66 @@ function AnimeListSkeleton() {
 }
 
 
-const Home = async () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  // Set nilai default jika fetch gagal
-  let animeOngoing = [];
-  let animeComplete = [];
+export default function Home() {
+  // --- STATE UNTUK DATA ---
+  const [animeOngoing, setAnimeOngoing] = useState([]);
+  const [animeComplete, setAnimeComplete] = useState([]);
   
-  // --- FLAG BARU UNTUK MELACAK ERROR ---
-  let ongoingFetchFailed = false;
-  let completedFetchFailed = false;
+  // --- STATE UNTUK STATUS LOADING ---
+  const [isLoadingOngoing, setIsLoadingOngoing] = useState(true);
+  const [isLoadingCompleted, setIsLoadingCompleted] = useState(true);
+  const [ongoingFetchFailed, setOngoingFetchFailed] = useState(false);
+  const [completedFetchFailed, setCompletedFetchFailed] = useState(false);
 
-  try {
-    // 1. Kita panggil kedua API secara bersamaan
-    const [ongoingResponse, completedResponse] = await Promise.allSettled([
-      fetch(`${apiUrl}/ongoing`),
-      fetch(`${apiUrl}/completed`)
-    ]);
+  // --- PINDAHKAN LOGIKA FETCH KE useEffect ---
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    // 2. Proses hasil 'ongoing' HANYA jika berhasil
-    if (ongoingResponse.status === 'fulfilled' && ongoingResponse.value.ok) {
-      const resultOnGoing = await ongoingResponse.value.json();
-      animeOngoing = resultOnGoing.animes || [];
-    } else {
-      // Jika gagal, log error-nya TAPI SET FLAG
-      console.error("Gagal mengambil data OnGoing:", 
-        ongoingResponse.reason || `Status: ${ongoingResponse.value?.status}`
-      );
-      ongoingFetchFailed = true; // <-- SET FLAG GAGAL
+    // 1. Fungsi untuk fetch Ongoing
+    async function fetchOngoing() {
+      setIsLoadingOngoing(true);
+      setOngoingFetchFailed(false);
+      try {
+        const response = await fetch(`${apiUrl}/ongoing`);
+        if (!response.ok) {
+          throw new Error(`Status: ${response.status}`);
+        }
+        const result = await response.json();
+        setAnimeOngoing(result.animes || []);
+      } catch (error) {
+        console.error("Gagal mengambil data OnGoing:", error);
+        setOngoingFetchFailed(true);
+      } finally {
+        setIsLoadingOngoing(false);
+      }
     }
 
-    // 3. Proses hasil 'completed' HANYA jika berhasil
-    if (completedResponse.status === 'fulfilled' && completedResponse.value.ok) {
-      const resultCompleted = await completedResponse.value.json();
-      animeComplete = resultCompleted.animes || [];
-    } else {
-      // Jika gagal, log error-nya TAPI SET FLAG
-      console.error("Gagal mengambil data Completed:", 
-        completedResponse.reason || `Status: ${completedResponse.value?.status}`
-      );
-      completedFetchFailed = true; // <-- SET FLAG GAGAL
+    // 2. Fungsi untuk fetch Completed
+    async function fetchCompleted() {
+      setIsLoadingCompleted(true);
+      setCompletedFetchFailed(false);
+      try {
+        const response = await fetch(`${apiUrl}/completed`);
+        if (!response.ok) {
+          throw new Error(`Status: ${response.status}`);
+        }
+        const result = await response.json();
+        setAnimeComplete(result.animes || []);
+      } catch (error) {
+        console.error("Gagal mengambil data Completed:", error);
+        setCompletedFetchFailed(true);
+      } finally {
+        setIsLoadingCompleted(false);
+      }
     }
 
-  } catch (error) {
-    // Menangkap error jika 'fetch' itu sendiri gagal
-    console.error("Error global saat fetch di Home:", error);
-    // Jika fetch global gagal, anggap keduanya gagal
-    ongoingFetchFailed = true;
-    completedFetchFailed = true;
-  }
+    // 3. Panggil kedua fungsi
+    // Kita tidak pakai Promise.all agar 'Ongoing' bisa tampil
+    // meskipun 'Completed' masih loading
+    fetchOngoing();
+    fetchCompleted();
+
+  }, []); // [] = Hanya jalankan sekali saat komponen dimuat
 
   // 4. Render halaman. 
   return (
@@ -93,27 +106,32 @@ const Home = async () => {
       <HeroSection />
       
       <Header title="Anime OnGoing" />
-      {/* Bagian Ongoing dimuat langsung karena berada di atas */}
-      {ongoingFetchFailed ? (
+      {/* --- LOGIKA RENDER BARU (CLIENT) --- */}
+      {isLoadingOngoing ? (
+        // 1. Tampilkan Skeleton saat loading
+        <AnimeListSkeleton />
+      ) : ongoingFetchFailed ? (
+        // 2. Tampilkan Warning jika gagal
         <ApiWarningMessage sectionTitle="OnGoing" />
       ) : (
+        // 3. Tampilkan data jika berhasil
         <AnimeOngoing api={animeOngoing}/>
       )}
+      {/* --- AKHIR LOGIKA RENDER --- */}
 
-      {/* --- GUNAKAN SUSPENSE DI SINI --- */}
-      {/* Ini memberitahu Next.js untuk mengirim Hero/Ongoing dulu,
-          lalu men-streaming bagian Completed saat siap. */}
-      <React.Suspense fallback={<AnimeListSkeleton />}>
-        <Header title="Anime Completed" />
-        {completedFetchFailed ? (
-          <ApiWarningMessage sectionTitle="Completed" />
-        ) : (
-          <AnimeCompleted api={animeComplete}/>
-        )}
-      </React.Suspense>
-      {/* --- AKHIR SUSPENSE --- */}
+      <Header title="Anime Completed" />
+      {/* --- LOGIKA RENDER BARU (CLIENT) --- */}
+      {isLoadingCompleted ? (
+        // 1. Tampilkan Skeleton saat loading
+        <AnimeListSkeleton />
+      ) : completedFetchFailed ? (
+        // 2. Tampilkan Warning jika gagal
+        <ApiWarningMessage sectionTitle="Completed" />
+      ) : (
+        // 3. Tampilkan data jika berhasil
+        <AnimeCompleted api={animeComplete}/>
+      )}
+      {/* --- AKHIR LOGIKA RENDER --- */}
     </>
   );
 }
-
-export default Home;
