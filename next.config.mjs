@@ -3,9 +3,6 @@ const nextConfig = {
     images: {
         remotePatterns: [
             {
-                hostname: "otakudesu.best"
-            },
-            {
                 hostname: "cdn.myanimelist.net"
             },
             {
@@ -16,6 +13,42 @@ const nextConfig = {
             },
             {
                 hostname: "placehold.co"
+            },
+            {
+                hostname: "i3.wp.com"
+            },
+            {
+                hostname: "i2.wp.com"
+            },
+            {
+                hostname: "i0.wp.com"
+            },
+            {
+                hostname: "i1.wp.com"
+            },
+            {
+                hostname: "upload.wikimedia.org"
+            },
+            {
+                hostname: "u01.appmifile.com"
+            },
+            {
+                hostname: "media.kitsu.io"
+            },
+            {
+                hostname: "i.pinimg.com"
+            },
+            {
+                hostname: "1.bp.blogspot.com"
+            },
+            {
+                hostname: "ecs7.tokopedia.net"
+            },
+            {
+                hostname: "s4.anilist.co"
+            },
+            {
+                hostname: "encrypted-tbn0.gstatic.com"
             }
         ]
     }

@@ -1,55 +1,38 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react' // Hapus useState dan useEffect
-import { FaStar } from 'react-icons/fa' // Hapus FaEye jika tidak dipakai
+import React from 'react'
 
-// Ini adalah "Dumb Component"
-// Ia hanya menerima props dan menampilkannya. Tidak ada 'fetch' data.
-const AnimeCard = ({ title, image, slug, currentEpisode, rating, views, episodeCount }) => {
-
-  // --- LOGIKA TAMPILAN (BUKAN FETCH) ---
-  // Kita tentukan teks episode berdasarkan props yang ada
-  let episodeText = null;
-  if (currentEpisode) {
-    // Ini dari 'ongoing_anime' (contoh: "Episode 4")
-    episodeText = currentEpisode.replace('Eps:', 'Eps ');
-  } else if (episodeCount) {
-    // Ini dari 'complete_anime' (contoh: "12")
-    episodeText = `Eps ${episodeCount}`;
-  }
-  // Jika tidak ada, 'episodeText' akan null dan tidak dirender.
+const AnimeCard = ({ title, image, slug, episode, statusOrDay, type }) => {
 
   return (
     <Link
-      href={`/anime/${slug}`} // key seharusnya ada di .map() di komponen parent
+      href={`/detail/${slug}`}
       className="group"
     >
       <div className="flex flex-col h-full">
         
         <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg">
           <Image
-            src={image} // Prop 'image' sekarang WAJIB ada
+            src={image} // Poster dari API
             alt={title}
-            fill // Gunakan fill
-            sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105 bg-neutral-700"
-            // Hapus 'priority'
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 
-          {/* Badge Rating: Hanya render jika prop 'rating' ada */}
-          {rating && (
-            <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-bold text-yellow-400 backdrop-blur-sm">
-              <FaStar />
-              <span>{rating}</span>
+          {/* Badge TYPE baru (pojok kanan atas) */}
+          {type && (
+            <div className="absolute top-2 right-2 z-10 rounded-md bg-pink-600/80 px-2 py-1 text-xs font-bold text-white backdrop-blur-sm">
+              <span>{type}</span>
             </div>
           )}
-
-          {/* Badge Episode: Hanya render jika 'episodeText' tadi dibuat */}
-          {episodeText && (
+          
+          {/* Badge Episode (pojok kiri bawah) */}
+          {episode && (
             <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-              {episodeText}
+              {episode.replace('Episode ', 'Eps ')}
             </div>
           )}
         </div>
@@ -59,22 +42,11 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating, views, episodeC
             {title}
           </h3>
           
-          {/* 'views' kita gunakan untuk menampilkan info tambahan 
-            (seperti 'release_day' atau 'last_release_date')
-          */}
-
-          {/* Tampilkan info rilis jika ini ONGOING (ada currentEpisode, tidak ada rating) */}
-          {!rating && currentEpisode && views && (
+          {/* Teks sub-judul (Hari rilis atau status) */}
+          {statusOrDay && (
              <div className="mt-1 flex items-center gap-1.5 text-xs text-neutral-400">
-              <span>Update setiap {views}</span>
-            </div>
-          )}
-
-          {/* Tampilkan info selesai jika ini COMPLETED (ada rating, tidak ada currentEpisode) */}
-          {rating && !currentEpisode && views && (
-             <div className="mt-1 flex items-center gap-1.5 text-xs text-neutral-400">
-              <span>Selesai: {views}</span>
-            </div>
+               <span>{statusOrDay.replace('✓', '')}</span>
+             </div>
           )}
         </div>
       </div>
@@ -82,4 +54,4 @@ const AnimeCard = ({ title, image, slug, currentEpisode, rating, views, episodeC
   )
 }
 
-export default AnimeCard
+export default AnimeCard;

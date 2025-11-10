@@ -89,7 +89,7 @@ async function DashboardPage() {
         </Link>
         <Link
           href="/users/dashboard/my-comment"
-          className="flex-1 text-center py-3 px-6 bg-zinc-700 text-white font-semibold rounded-lg hover:bg-zinc-600 transition-colors"
+          className="flex-1 text-center py-3 px-6 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
         >
           Riwayat Komentar
         </Link>

@@ -1,43 +1,19 @@
 // File: src/app/dashboard/history/page.js
+// KOMPONEN INI TETAP SEBAGAI SERVER COMPONENT
 
 import { getServerSession } from "next-auth";
-import prisma from "@/app/libs/prisma";
+import prisma from "@/app/libs/prisma"; // Pastikan path ini benar
 import { redirect } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Navigation from "@/app/components/Navigation";
 
-// --- FUNGSI BARU DIMULAI ---
-/**
- * Mengubah slug episode menjadi format yang mudah dibaca.
- * contoh: "sxf-s3-episode-1-sub-indo" akan menjadi "Episode 1"
- * @param {string} slug - Slug episode dari database (item.episodeId)
- * @returns {string} - String yang sudah diformat
- */
-function formatEpisodeId(slug) {
-  if (!slug) return "";
+// 1. Impor komponen client baru
+import HistoryList from "./HistoryList"; 
 
-  // 1. Gunakan Regex untuk mencari pola "episode-ANGKA"
-  const match = slug.match(/episode-(\d+)/);
+// (Fungsi formatEpisodeId tidak diperlukan di sini lagi, 
+//  karena sudah dipindahkan ke HistoryList.js)
 
-  // 2. Jika ditemukan (cth: "episode-1"), ambil angkanya (cth: "1")
-  if (match && match[1]) {
-    const episodeNumber = match[1];
-    return `Episode ${episodeNumber}`;
-  }
-
-  // 3. Fallback jika pola tidak ditemukan
-  // (Mengubah "slug-aneh-lain" menjadi "Slug Aneh Lain")
-  return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-// --- FUNGSI BARU SELESAI ---
-
-
-// Fungsi helper untuk mendapatkan data
+// Fungsi helper untuk mendapatkan data (Tetap di sini)
 async function getWatchHistory(userId) {
   const history = await prisma.watchHistory.findMany({
     where: {
@@ -66,44 +42,20 @@ export default async function HistoryPage() {
     redirect("/signin");
   }
 
+  // 2. Ambil data di server
   const history = await getWatchHistory(currentUser.id);
 
   return (
     <div className="container mx-auto p-4">
-        <Navigation/>
+      <Navigation />
       <h1 className="text-3xl font-bold mb-6">Riwayat Menonton</h1>
       
-      {history.length === 0 ? (
-        <p>Kamu belum menonton. nonton dulu ya kids</p>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {history.map((item) => (
-            <Link 
-              href={`/watch/${item.episodeId}`} 
-              key={item.id} 
-              className="group"
-            >
-              <div className="aspect-video relative overflow-hidden rounded-lg">
-                <Image
-                  src={item.image || 'https://placehold.co/600x400/252736/FFFFFF/png?text=No+Image'} // Placeholder lebih baik
-                  alt={item.title}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-110"
-                />
-              </div>
-              <h3 className="text-sm font-semibold mt-2 group-hover:text-pink-500">
-                {item.title}
-              </h3>
-              
-              {/* --- INI PERUBAHANNYA --- */}
-              <p className="text-xs text-gray-400 capitalize">
-                {formatEpisodeId(item.episodeId)}
-              </p>
+      {/* 3. Render Komponen Client dan teruskan data sebagai prop.
+           Semua logika 'map', 'state', dan 'event' sekarang 
+           ditangani di dalam HistoryList.
+      */}
+      <HistoryList initialHistory={history} />
 
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
