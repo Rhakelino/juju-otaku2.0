@@ -7,7 +7,7 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
   return (
     <Link
       href={`/detail/${slug}`}
-      className="group"
+      className="group will-change-transform" // <-- TAMBAHKAN DI SINI
     >
       <div className="flex flex-col h-full">
 
