@@ -21,20 +21,20 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
             className="object-cover transition-transform duration-300 group-hover:scale-105 bg-neutral-700"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+          {/* <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div> */}
 
           // Di dalam AnimeCard.js
 
           {/* Badge TYPE baru (pojok kanan atas) */}
           {type && (
-            <div className="absolute top-2 right-2 z-10 rounded-md bg-pink-600/80 px-2 py-1 text-xs font-bold text-white backdrop-blur-sm">
+            <div className="absolute top-2 right-2 z-10 rounded-md bg-pink-600/80 px-2 py-1 text-xs font-bold text-white">
               <span>{type}</span>
             </div>
           )}
 
           {/* Badge Episode (pojok kiri bawah) */}
           {episode && (
-            <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+            <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
               {episode.replace('Episode ', 'Eps ')}
             </div>
           )}
