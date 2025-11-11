@@ -14,6 +14,7 @@ const AnimeCompleted = ({ api }) => {
           episode={anime.episode}
           type={anime.type}
           statusOrDay={anime.release_day}
+          priority={index < 6}
         />
       ))}
     </div>

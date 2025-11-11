@@ -13,6 +13,7 @@ const AnimeOngoing = ({ api }) => {
           type={anime.type}
           episode={anime.episode}
           statusOrDay={anime.release_day}
+          priority={index < 6}
         />
       ))}
     </div>
