@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Navigation from '@/app/components/Navigation';
 import Image from 'next/image';
 import Link from 'next/link';
