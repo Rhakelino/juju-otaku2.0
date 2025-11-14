@@ -3,13 +3,11 @@ import React from 'react'
 import SearchInput from './SearchInput'
 import Link from 'next/link'
 import Image from 'next/image'
-import UserActionButton from './UserActionButton'
-import { AuthUserSession } from '../libs/auth-libs'
 
 const HeroSection = () => {
 
   return (
-    <div className="flex items-center justify-center pt-16 bg-[#1A1A29] p-4">
+    <div className="flex items-center justify-center bg-[#1A1A29] p-4">
       <div className="w-full max-w-5xl bg-[#252736] lg:h-[500px] rounded-2xl overflow-hidden 
     grid grid-cols-1 lg:grid-cols-2 
     shadow-2xl shadow-black/40 border border-neutral-800/30">
@@ -44,7 +42,6 @@ const HeroSection = () => {
               Donate JujuOtaku
             </Link>
           </div>
-          <UserActionButton />
         </div>
 
         {/* Gambar (Sekarang `lg:order-2`) */}

@@ -49,10 +49,10 @@ async function DashboardPage() {
         </h1>
         <div className="flex flex-wrap justify-center gap-2 mt-3">
           <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full">
-            Wibu Biasa
+            Wibu Next Level
           </span>
           <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full">
-            Lvl. 1
+            Lvl. 9999
           </span>
           <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full break-all">
             {email}
@@ -93,11 +93,7 @@ async function DashboardPage() {
         >
           Riwayat Komentar
         </Link>
-
       </div>
-
-      {/* Bagian konten "All" (No. 6) dihapus */}
-
     </section>
   );
 }

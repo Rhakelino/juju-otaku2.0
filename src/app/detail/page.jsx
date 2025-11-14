@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import AnimeListClient from '../components/AnimeListClient';
 import Navigation from '../components/Navigation';
