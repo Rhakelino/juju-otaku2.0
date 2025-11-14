@@ -1,14 +1,14 @@
 import NextAuth from "next-auth";
-import GithubProvider from "next-auth/providers/github"; // Ubah nama import
-import GoogleProvider from "next-auth/providers/google"; // Ubah nama import
-import { PrismaAdapter } from "@auth/prisma-adapter"; // <-- IMPORT ADAPTER
-import prisma from "@/app/libs/prisma"; // <-- IMPORT PRISMA CLIENT
+import GithubProvider from "next-auth/providers/github"; 
+import GoogleProvider from "next-auth/providers/google"; 
+import { PrismaAdapter } from "@auth/prisma-adapter"; 
+import prisma from "@/app/libs/prisma"; 
+
+const useDatabase = !!prisma;
 
 export const authOptions = {
-  // 1. TAMBAHKAN ADAPTER
-  adapter: PrismaAdapter(prisma),
+  adapter: useDatabase ? PrismaAdapter(prisma) : undefined,
 
-  // 2. KONFIGURASI PROVIDER ANDA (sudah benar)
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID,
@@ -20,21 +20,17 @@ export const authOptions = {
     }),
   ],
 
-  // Halaman signin kustom Anda (sudah benar)
   pages: {
     signIn: "/signin",
   },
 
-  // Rahasia (sudah benar)
   secret: process.env.NEXT_AUTH_SECRET,
 
-  // 3. UBAH STRATEGI SESI
   session: {
-    strategy: "database", // <-- UBAH DARI "jwt" (default) ke "database"
-    maxAge: 30 * 24 * 60 * 60, // 30 hari
+    strategy: useDatabase ? "database" : "jwt",
+    maxAge: 30 * 24 * 60 * 60, 
   },
 
-  // 4. (Opsional) Aktifkan mode debug saat development
   debug: process.env.NODE_ENV === "development",
 };
 
