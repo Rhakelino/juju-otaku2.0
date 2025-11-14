@@ -1,6 +1,5 @@
 "use client";
 
-// 1. Impor 'useSearchParams'
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -8,8 +7,6 @@ import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import Navigation from '@/app/components/Navigation';
 
-
-// Komponen Skeleton (Tidak Berubah)
 function WatchPageSkeleton() {
   return (
     <div className="min-h-screen bg-black text-white animate-pulse">
@@ -38,7 +35,6 @@ function WatchPageSkeleton() {
   );
 }
 
-// Komponen ErrorDisplay (Tidak Berubah)
 function ErrorDisplay({ message, animeSlug }) {
   return (
     <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center px-4">
@@ -51,12 +47,51 @@ function ErrorDisplay({ message, animeSlug }) {
   );
 }
 
-// 2. Buat Komponen Konten terpisah untuk menggunakan useSearchParams
+const HISTORY_CACHE_KEY = 'juju-otaku-history';
+
+function saveHistoryToCache(animeInfo, episodeSlug) {
+  if (!animeInfo || !episodeSlug) return;
+
+  try {
+    const newItem = {
+      id: episodeSlug, 
+      userId: 'local-user',
+      animeId: animeInfo.slug,
+      episodeId: episodeSlug,
+      title: animeInfo.title,
+      image: animeInfo.image,
+      watchedAt: new Date().toISOString(),
+    };
+
+    let currentHistory = [];
+    try {
+      currentHistory = JSON.parse(localStorage.getItem(HISTORY_CACHE_KEY)) || [];
+      if (!Array.isArray(currentHistory)) {
+        currentHistory = [];
+      }
+    } catch (e) {
+      currentHistory = [];
+    }
+
+    const filteredHistory = currentHistory.filter(
+      (item) => item.episodeId !== episodeSlug
+    );
+
+    const newHistory = [newItem, ...filteredHistory];
+    const cappedHistory = newHistory.slice(0, 50);
+
+    localStorage.setItem(HISTORY_CACHE_KEY, JSON.stringify(cappedHistory));
+    console.log(`Riwayat disimpan ke cache (${episodeSlug}).`);
+
+  } catch (error) {
+    console.error("Gagal menyimpan riwayat ke cache:", error);
+  }
+}
+
 function WatchPageContent({ params, episodeSlug }) {
   const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
 
-  // State (Tidak berubah)
   const [episodeTitle, setEpisodeTitle] = useState(null);
   const [servers, setServers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +105,6 @@ function WatchPageContent({ params, episodeSlug }) {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // useEffect untuk Fetch Data (HANYA FETCH 1)
   useEffect(() => {
     if (!episodeSlug) {
       setError("Slug episode tidak valid.");
@@ -84,12 +118,10 @@ function WatchPageContent({ params, episodeSlug }) {
       setCurrentStreamUrl(null);
       setServers([]);
       setEpisodeTitle(null);
-      // setAnimeInfo(null); // Kita tidak reset di sini lagi
       setIsValidPrev(false);
       setIsValidNext(false);
 
       try {
-        // --- HANYA FETCH 1: Ambil Data Episode (Streams) ---
         const episodeResponse = await fetch(`${apiUrl}/episode/${episodeSlug}`);
         if (!episodeResponse.ok) {
           throw new Error(`Gagal mengambil data episode. Status: ${episodeResponse.status}`);
@@ -107,34 +139,26 @@ function WatchPageContent({ params, episodeSlug }) {
           setCurrentStreamUrl(null);
         }
 
-        // --- LOGIKA BARU: Baca data riwayat dari URL atau Session Storage ---
         const slugFromUrl = searchParams.get('slug');
         const titleFromUrl = searchParams.get('title');
         const imageFromUrl = searchParams.get('image');
 
         if (slugFromUrl && titleFromUrl && imageFromUrl) {
-          // KASUS 1: Datang dari Halaman Detail (URL Punya Params)
           const info = {
             slug: slugFromUrl,
             title: titleFromUrl,
             image: imageFromUrl
           };
           setAnimeInfo(info);
-          // SIMPAN ke sessionStorage untuk episode berikutnya
           sessionStorage.setItem('lastWatchedAnimeInfo', JSON.stringify(info));
         } else {
-          // KASUS 2: Pindah dari Ep 1 -> Ep 2 (URL Polosan)
-          // Coba AMBIL DARI sessionStorage
           const cachedInfo = sessionStorage.getItem('lastWatchedAnimeInfo');
           if (cachedInfo) {
             setAnimeInfo(JSON.parse(cachedInfo));
           } else {
-            // Jika tidak ada di cache (misal: user langsung ke URL nonton)
             console.warn("Data riwayat (slug, title, image) tidak ditemukan di query params ATAU session storage.");
           }
         }
-        // --- AKHIR LOGIKA BARU ---
-
       } catch (err) {
         setError(err.message);
       } finally {
@@ -143,15 +167,18 @@ function WatchPageContent({ params, episodeSlug }) {
     }
     
     fetchEpisodeData();
-  }, [episodeSlug, apiUrl, searchParams]); // 'searchParams' tetap di sini
+  }, [episodeSlug, apiUrl, searchParams]);
 
 
-  // --- useEffect Simpan Riwayat ---
-  // (Tidak berubah, ini akan bekerja setelah 'animeInfo' di-set)
   useEffect(() => {
-    if (animeInfo && animeInfo.slug && animeInfo.title && animeInfo.image && sessionStatus !== 'loading' && session) {
-      
-      const saveHistory = async () => {
+    const useDatabase = process.env.NEXT_PUBLIC_USE_DATABASE === 'true';
+
+    if (!animeInfo || !animeInfo.slug || !animeInfo.title || !animeInfo.image || sessionStatus === 'loading') {
+      return;
+    }
+
+    if (useDatabase && session) {
+      const saveHistoryToDb = async () => {
         try {
           await fetch('/api/history', {
             method: 'POST',
@@ -163,20 +190,19 @@ function WatchPageContent({ params, episodeSlug }) {
               image: animeInfo.image,
             }),
           });
-          console.log(`Riwayat disimpan (${episodeSlug}). Cek database Anda.`);
+          console.log(`Riwayat disimpan ke DB (${episodeSlug}).`);
         } catch (err) {
-          console.error("Gagal menyimpan riwayat:", err);
+          console.error("Gagal menyimpan riwayat ke DB:", err);
         }
       };
-      
-      saveHistory();
+      saveHistoryToDb();
+
+    } else if (!useDatabase) {
+      saveHistoryToCache(animeInfo, episodeSlug);
     }
   }, [animeInfo, session, sessionStatus, episodeSlug]);
 
 
-  // --- Sisa kode tidak berubah ---
-
-  // Fungsi Handle Klik Server
   const handleServerClick = (server) => {
     setIsSwitchingServer(true);
     setActiveIdentifier(server.url);
@@ -186,7 +212,6 @@ function WatchPageContent({ params, episodeSlug }) {
     }, 300);
   };
 
-  // Logika Membuat Slug Next/Prev
   const { prevSlug, nextSlug } = useMemo(() => {
     if (!episodeSlug) return { prevSlug: null, nextSlug: null };
     const match = episodeSlug.match(/-episode-(\d+)$/);
@@ -198,7 +223,6 @@ function WatchPageContent({ params, episodeSlug }) {
     return { prevSlug, nextSlug };
   }, [episodeSlug]);
 
-  // useEffect untuk Memverifikasi Keberadaan Episode Next/Prev
   useEffect(() => {
     const checkEpisodeExistence = async () => {
       if (prevSlug) {
@@ -238,13 +262,11 @@ function WatchPageContent({ params, episodeSlug }) {
     return <ErrorDisplay message="Data episode tidak ditemukan atau tidak ada server." animeSlug={null} />;
   }
 
-  // --- RETURN JSX ---
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
         <Navigation />
 
-        {/* Player (Tidak berubah) */}
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">
           {isSwitchingServer && (
             <div className="w-full h-full flex flex-col justify-center items-center text-center p-4 bg-neutral-900">
@@ -269,7 +291,6 @@ function WatchPageContent({ params, episodeSlug }) {
           )}
         </div>
 
-        {/* Server List (Tidak berubah) */}
         <div className="bg-neutral-900 p-4 rounded-lg mb-4">
           <h2 className="text-lg font-semibold mb-3">Pilih Server</h2>
           <div className='w-full h-full p-4 bg-neutral-800 rounded-lg shadow-xl'>
@@ -297,15 +318,11 @@ function WatchPageContent({ params, episodeSlug }) {
           </div>
         </div>
 
-        {/* Detail Episode & Navigasi */}
         <div className="bg-neutral-900 p-4 rounded-lg mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 truncate">{episodeTitle || 'Memuat judul...'}</h1>
           <div className="flex justify-between items-center">
             <span className="text-sm text-pink-400">Animasu API</span>
             <div className="flex space-x-2">
-              
-              {/* --- PERBAIKAN LINK: Hapus searchParams.toString() --- */}
-              {/* Kita tidak perlu lagi meneruskan query params secara manual */}
               
               {isValidPrev && (
                 <Link href={`/watch/${prevSlug}`} className="bg-neutral-700 p-2 rounded-full hover:bg-pink-600 transition">
@@ -326,7 +343,6 @@ function WatchPageContent({ params, episodeSlug }) {
   );
 }
 
-// Bungkus ekspor default dengan Suspense (Tidak berubah)
 export default function WatchPage({ params }) {
   const resolvedParams = React.use ? React.use(params) : params;
   const episodeSlugArray = resolvedParams?.episodeSlug;
