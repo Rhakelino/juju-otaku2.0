@@ -41,7 +41,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 Host your own instance of <a href="https://juju-otaku2-0.vercel.app">juju-otaku2.0</a>  on vercel
 
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SankaVollereii/juju-otaku2.0)
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SankaVollereii/juju-otaku2.0&env=NEXT_PUBLIC_API_URL,NEXTAUTH_URL,NEXT_AUTH_SECRET,USE_DATABASE,DATABASE_URL,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET)
 
 ---
 
