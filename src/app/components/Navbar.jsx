@@ -12,7 +12,7 @@ const Navbar = ({ user }) => {
     { href: "/movie", name: "Movie" },
     { href: "/genre", name: "Genre" },
     { href: "/schedule", name: "Schedule" },
-    { href: "https://sankanime.com", name: "Web Sankanime" },
+    { href: "https://link.sankanime.com", name: "Web Sankanime" },
     { href: "https://www.whatsapp.com/channel/0029VbBv5edGk1Fo8WbsAK1V", name: "Join Komunitas" },
   ];
 
