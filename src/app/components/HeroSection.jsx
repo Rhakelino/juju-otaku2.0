@@ -38,7 +38,7 @@ const HeroSection = () => {
               Database Anime A - Z
             </Link>
 
-            <Link href={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 lg:py-3 rounded-full">
+            <Link href={'https://sociabuzz.com/sankanime/tribe'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 lg:py-3 rounded-full">
               Donate JujuOtaku
             </Link>
           </div>
