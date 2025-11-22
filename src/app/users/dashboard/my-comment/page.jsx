@@ -2,6 +2,7 @@ import Navigation from '@/app/components/Dashboard/Navigation'
 import React from 'react'
 import Link from 'next/link' // Opsional: Untuk link ke episode
 import { FaQuoteLeft, FaClock, FaVideo } from 'react-icons/fa'; // Icon untuk visual
+import BreadcrumbNavigation from '@/app/components/BreadcrumbNavigation';
 
 // Data bohongan untuk daftar komentar
 const myCommentsData = [
@@ -30,10 +31,16 @@ const myCommentsData = [
 ];
 
 const Page = () => {
+    const breadcrumbs = [
+        { title: 'Dashboard', href: '/users/dashboard' },
+        { title: 'My Comments', href: '/users/dashboard/my-comment' }
+    ];
+
     return (
         <section className='font-sans relative px-8 py-4 min-h-screen bg-gray-900 text-gray-100'>
             {/* Komponen navigasi Anda */}
             <Navigation />
+            <BreadcrumbNavigation crumbs={breadcrumbs} />
 
             {/* Konten Halaman My Comments */}
             <div className='py-8 px-4 max-w-4xl mx-auto'>

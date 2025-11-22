@@ -1,6 +1,7 @@
 import AnimeCard from '@/app/components/AnimeCard';
 import SearchInput from '@/app/components/SearchInput';
 import Navigation from '@/app/components/Navigation';
+import BreadcrumbNavigation from '@/app/components/BreadcrumbNavigation';
 
 async function searchAnime(slug) {
   if (!slug) return [];
@@ -29,6 +30,11 @@ export default async function SearchPage({ params: ParamsPromise }) {
   const { slug } = params;
   const keyword = decodeURIComponent(slug);
   const searchResults = await searchAnime(slug);
+
+  const breadcrumbs = [
+    { title: 'Search', href: '/search' },
+    { title: keyword, href: `/search/${slug}` }
+  ];
 
   return (
     <div className="min-h-screen bg-neutral-900 text-white">

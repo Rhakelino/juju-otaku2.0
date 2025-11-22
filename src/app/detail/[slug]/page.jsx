@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import BreadcrumbNavigation from '@/app/components/BreadcrumbNavigation';
-import Navigation from '@/app/components/Navigation';
+import ResponsiveBreadcrumb from '@/app/components/ResponsiveBreadcrumb';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -57,11 +56,9 @@ export default async function DetailAnimePage({ params: paramsPromise }) {
   // Hasil: "slug=one-punch-man-s3&title=One+Punch+Man+S3&image=http%3A%2F%2F..."
   // -------------------------------------------------------------
 
-  const breadcrumb = [
-    {
-      title: anime.title, href: "/detail"
-    },
-  ]
+  const breadcrumbs = [
+    { title: anime.title, href: `/detail/${slug}` }
+  ];
 
   return (
 
@@ -71,8 +68,7 @@ export default async function DetailAnimePage({ params: paramsPromise }) {
         style={{ backgroundImage: `url(${anime.poster})` }}
       ></div>
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <Navigation />
-        <BreadcrumbNavigation crumbs={breadcrumb} />
+        <ResponsiveBreadcrumb crumbs={breadcrumbs} />
 
         <div className="md:flex mt-8">
           <div className="md:w-1/3 justify-center flex mb-6 md:mb-0 md:pr-8 flex-shrink-0">

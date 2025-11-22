@@ -3,6 +3,7 @@ import Header from '@/app/components/Header';
 import AnimeCard from '@/app/components/AnimeCard';
 import PaginationControls from '../components/Pagination';
 import Navigation from '../components/Navigation';
+import BreadcrumbNavigation from '../components/BreadcrumbNavigation';
 
 // Sesuaikan angka ini jika API Anda mengembalikan jumlah yang berbeda (misal 12, 24).
 const ANIME_PER_PAGE = 10;
@@ -44,9 +45,13 @@ export default async function PopulerPage({ searchParams }) {
 
   const hasNextPage = popularAnime.length === ANIME_PER_PAGE;
 
+  const breadcrumbs = [
+    { title: 'Populer', href: '/populer' }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <Navigation />
+      <BreadcrumbNavigation crumbs={breadcrumbs} />
       <Header title={`Anime Populer #${currentPage}`} />
       {popularAnime.length > 0 ? (
         <>

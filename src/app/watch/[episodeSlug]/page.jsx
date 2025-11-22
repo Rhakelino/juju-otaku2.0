@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
-import Navigation from '@/app/components/Navigation';
+import ResponsiveBreadcrumb from '@/app/components/ResponsiveBreadcrumb';
 
 
 // Komponen Skeleton (Tidak Berubah)
@@ -239,10 +239,18 @@ function WatchPageContent({ params, episodeSlug }) {
   }
 
   // --- RETURN JSX ---
+  // Breadcrumb: Home > Nama Anime > Episode Title
+  const breadcrumbs = animeInfo?.slug ? [
+    { title: animeInfo.title, href: `/detail/${animeInfo.slug}` },
+    { title: episodeTitle || 'Loading...', href: `/watch/${episodeSlug}` }
+  ] : [
+    { title: episodeTitle || 'Loading...', href: `/watch/${episodeSlug}` }
+  ];
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
-        <Navigation />
+        <ResponsiveBreadcrumb crumbs={breadcrumbs} />
 
         {/* Player (Tidak berubah) */}
         <div className="aspect-video bg-neutral-800 rounded-lg overflow-hidden mb-4 shadow-lg">

@@ -49,6 +49,12 @@ const nextConfig = {
             },
             {
                 hostname: "encrypted-tbn0.gstatic.com"
+            },
+            {
+                hostname: "cache2-ebookjapan.akamaized.net"
+            },
+            {
+                hostname: "v1.animasu.top"
             }
         ]
     }

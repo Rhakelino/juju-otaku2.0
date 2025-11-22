@@ -11,7 +11,7 @@ const Navbar = ({ user }) => {
   const navLinks = [
     { href: "/populer", name: "Populer" },
     { href: "/movie", name: "Movie" },
-    { href: "/genre", name: "Genre" },
+    { href: "/genres", name: "Genre" },
     { href: "/schedule", name: "Schedule" },
   ];
 

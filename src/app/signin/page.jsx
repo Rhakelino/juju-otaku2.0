@@ -3,12 +3,16 @@
 
 import { getProviders, signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
+import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 
 // (Opsional) Impor ikon jika Anda mau
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 export default function SignInPage() {
+  const breadcrumbs = [
+    { title: 'Sign In', href: '/signin' }
+  ];
   const [providers, setProviders] = useState(null);
 
   useEffect(() => {
@@ -36,6 +40,9 @@ export default function SignInPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="absolute top-4 left-4 z-10">
+        <BreadcrumbNavigation crumbs={breadcrumbs} />
+      </div>
       <div className="w-full max-w-sm p-8 space-y-6 bg-gray-800 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center text-white">
           Login ke Juju Otaku

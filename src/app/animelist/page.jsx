@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import React from 'react';
 import Navigation from '../components/Navigation';
 import AnimeListClient from '../components/AnimeListClient';
+import BreadcrumbNavigation from '../components/BreadcrumbNavigation';
 
 // Fungsi fetch ini hanya berjalan di server
 async function getInitialAnime(letter, page) {
@@ -36,9 +37,13 @@ const Page = async () => {
     const initialLetter = 'A';
     const initialAnimeData = await getInitialAnime(initialLetter, 1); 
     
+    const breadcrumbs = [
+        { title: 'Anime List', href: '/animelist' }
+    ];
+
     return (
         <div className="min-h-screen text-white p-4 md:p-8">
-            <Navigation />
+            <BreadcrumbNavigation crumbs={breadcrumbs} />
             <h1 className="text-3xl font-bold mb-8 text-center text-pink-500">
                 Daftar Semua Anime A - Z
             </h1>

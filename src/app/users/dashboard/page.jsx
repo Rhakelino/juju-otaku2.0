@@ -3,6 +3,7 @@ import Image from "next/image";
 import { AuthUserSession } from "@/app/libs/auth-libs";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import BreadcrumbNavigation from "@/app/components/BreadcrumbNavigation";
 
 async function DashboardPage() {
   const session = await AuthUserSession();
@@ -14,12 +15,19 @@ async function DashboardPage() {
   // Ambil data user dari sesi
   const { name, email, image } = session;
 
+  const breadcrumbs = [
+    { title: 'Dashboard', href: '/users/dashboard' }
+  ];
+
   return (
     // 1. Latar belakang diubah ke zinc-900
     <section className="font-sans min-h-screen text-gray-100">
 
       {/* 2. Header: Tombol Logout diubah gayanya */}
-      <div className="flex justify-between items-center p-4">
+      <div className="p-4">
+        <BreadcrumbNavigation crumbs={breadcrumbs} />
+      </div>
+      <div className="flex justify-between items-center px-4">
         <Link href={"/"} className="text-white hover:text-pink-400">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />

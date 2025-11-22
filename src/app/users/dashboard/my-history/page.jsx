@@ -6,6 +6,7 @@ import prisma from "@/app/libs/prisma"; // Pastikan path ini benar
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Navigation from "@/app/components/Navigation";
+import BreadcrumbNavigation from "@/app/components/BreadcrumbNavigation";
 
 // 1. Impor komponen client baru
 import HistoryList from "./HistoryList"; 
@@ -45,9 +46,15 @@ export default async function HistoryPage() {
   // 2. Ambil data di server
   const history = await getWatchHistory(currentUser.id);
 
+  const breadcrumbs = [
+    { title: 'Dashboard', href: '/users/dashboard' },
+    { title: 'My History', href: '/users/dashboard/my-history' }
+  ];
+
   return (
     <div className="container mx-auto p-4">
       <Navigation />
+      <BreadcrumbNavigation crumbs={breadcrumbs} />
       <h1 className="text-3xl font-bold mb-6">Riwayat Menonton</h1>
       
       {/* 3. Render Komponen Client dan teruskan data sebagai prop.

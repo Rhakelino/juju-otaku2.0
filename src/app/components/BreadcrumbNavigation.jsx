@@ -13,18 +13,18 @@ import React from 'react';
  */
 const BreadcrumbNavigation = ({ crumbs = [] }) => {
   return (
-    <nav className="flex items-center text-sm text-neutral-400 mb-4" aria-label="Breadcrumb">
+    <nav className="flex items-center text-sm sm:text-base text-neutral-400 mb-4 sm:mb-6" aria-label="Breadcrumb">
       {/* Kita gunakan 'flex-wrap' agar rapi di HP jika jalurnya panjang */}
-      <ol className="inline-flex items-center space-x-1 md:space-x-2 flex-wrap">
+      <ol className="inline-flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 flex-wrap">
         
         {/* --- Bagian Home (Selalu ada) --- */}
         <li className="inline-flex items-center">
           <Link 
             href="/" 
-            className="inline-flex items-center text-pink-400 hover:text-pink-500 hover:underline"
+            className="inline-flex items-center text-pink-400 hover:text-pink-500 hover:underline transition-colors"
           >
-            <HomeIcon className="h-4 w-4 mr-2" />
-            Home
+            <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
+            <span className="text-sm sm:text-base">Home</span>
           </Link>
         </li>
 
@@ -36,7 +36,7 @@ const BreadcrumbNavigation = ({ crumbs = [] }) => {
           return (
             <li key={index}>
               <div className="flex items-center">
-                <ChevronRightIcon className="h-4 w-4 text-neutral-500" />
+                <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5 text-neutral-500" />
                 
                 {/* Jika BUKAN item terakhir, buat sebagai Link
                   Jika INI item terakhir, buat sebagai Teks
@@ -44,12 +44,12 @@ const BreadcrumbNavigation = ({ crumbs = [] }) => {
                 {!isLastItem ? (
                   <Link
                     href={crumb.href}
-                    className="ml-1 md:ml-2 text-pink-400 hover:text-pink-500 hover:underline"
+                    className="ml-1.5 sm:ml-2 text-sm sm:text-base text-pink-400 hover:text-pink-500 hover:underline transition-colors"
                   >
                     {crumb.title}
                   </Link>
                 ) : (
-                  <span className="ml-1 md:ml-2 font-medium text-neutral-100">
+                  <span className="ml-1.5 sm:ml-2 text-sm sm:text-base font-medium text-neutral-100">
                     {crumb.title}
                   </span>
                 )}

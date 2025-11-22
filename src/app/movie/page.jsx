@@ -47,10 +47,13 @@ export default async function MoviePage({ searchParams }) {
   const movieAnime = result.animes || [];
   const hasNextPage = result.pagination?.hasNext || false; // <-- Ini cara yang benar
 
+  const breadcrumbs = [
+    { title: 'Movie', href: '/movie' }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <Navigation />
-      <BreadcrumbNavigation pageTitle='Movie'/>
+      <BreadcrumbNavigation crumbs={breadcrumbs} />
       {/* Saya ganti 'Populer' menjadi 'Movie' agar sesuai nama file */}
       <Header title={`Anime Movie #${currentPage}`} /> 
       
