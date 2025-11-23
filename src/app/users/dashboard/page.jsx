@@ -22,20 +22,10 @@ async function DashboardPage() {
   return (
     // 1. Latar belakang diubah ke zinc-900
     <section className="font-sans min-h-screen text-gray-100">
-
-      {/* 2. Header: Tombol Logout diubah gayanya */}
-      <div className="p-4">
+      <div className="flex items-center justify-between py-8 px-4">
         <BreadcrumbNavigation crumbs={breadcrumbs} />
-      </div>
-      <div className="flex justify-between items-center px-4">
-        <Link href={"/"} className="text-white hover:text-pink-400">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-          </svg>
-        </Link>
         <Link
           href="/api/auth/signout"
-          // Gaya tombol diubah
           className="border border-red-500 text-red-500 px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition-colors"
         >
           Logout
