@@ -1,41 +1,39 @@
 import NextAuth from "next-auth";
-import GithubProvider from "next-auth/providers/github"; // Ubah nama import
-import GoogleProvider from "next-auth/providers/google"; // Ubah nama import
-import { PrismaAdapter } from "@auth/prisma-adapter"; // <-- IMPORT ADAPTER
-import prisma from "@/app/libs/prisma"; // <-- IMPORT PRISMA CLIENT
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import prisma from "@/app/libs/prisma";
 
 export const authOptions = {
-  // 1. TAMBAHKAN ADAPTER
   adapter: PrismaAdapter(prisma),
-
-  // 2. KONFIGURASI PROVIDER ANDA (sudah benar)
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
   ],
-
-  // Halaman signin kustom Anda (sudah benar)
+  callbacks: {
+    async session({ session, user }) {
+      // Tambahkan user.id ke session
+      if (session?.user) {
+        session.user.id = user.id;
+      }
+      return session;
+    },
+  },
   pages: {
-    signIn: "/signin",
+    signIn: '/signin',
   },
-
-  // Rahasia (sudah benar)
-  secret: process.env.NEXT_AUTH_SECRET,
-
-  // 3. UBAH STRATEGI SESI
   session: {
-    strategy: "database", // <-- UBAH DARI "jwt" (default) ke "database"
-    maxAge: 30 * 24 * 60 * 60, // 30 hari
+    strategy: 'database',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-
-  // 4. (Opsional) Aktifkan mode debug saat development
-  debug: process.env.NODE_ENV === "development",
+  secret: process.env.NEXT_AUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
