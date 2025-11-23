@@ -68,7 +68,6 @@ export default async function GenrePage({ params: paramsPromise, searchParams })
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        <Navigation />
         <ResponsiveBreadcrumb crumbs={breadcrumbs} />
         
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

@@ -53,7 +53,6 @@ export default async function HistoryPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <Navigation />
       <BreadcrumbNavigation crumbs={breadcrumbs} />
       <h1 className="text-3xl font-bold mb-6">Riwayat Menonton</h1>
       

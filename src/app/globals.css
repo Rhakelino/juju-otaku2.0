@@ -28,3 +28,19 @@ body {
   color: var(--foreground);
   /* font-family akan diambil dari layout.js Anda */
 }
+
+/* PWA Install Prompt Animation */
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.4s ease-out;
+}

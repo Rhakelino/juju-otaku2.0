@@ -1,0 +1,19 @@
+{
+  "name": "JujuOtaku - Web Streaming Anime Sub Indo",
+  "short_name": "JujuOtaku",
+  "icons": [
+    {
+      "src": "/images/favicon_io/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon_io/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ec4899",
+  "background_color": "#171717",
+  "display": "standalone"
+}
