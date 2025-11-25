@@ -68,12 +68,13 @@ export default async function AdminUsersPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Users Management</h1>
-          <p className="text-neutral-400">Total: {users.length} registered users</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Users Management</h1>
+          <p className="text-sm sm:text-base text-neutral-400">Total: {users.length} registered users</p>
         </div>
 
         <div className="bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-neutral-900">
                 <tr>
@@ -172,6 +173,79 @@ export default async function AdminUsersPage() {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {usersWithCounts.map((user, index) => {
+              const progressPercent = user.nextLevelMinutes > 0 
+                ? Math.min((user.totalWatchMinutes / user.nextLevelMinutes) * 100, 100)
+                : 0;
+
+              return (
+                <div key={user.id} className="bg-neutral-900 p-4 rounded-lg space-y-3">
+                  {/* Header with rank and level */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-neutral-500">#{index + 1}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs px-2 py-1 bg-pink-600 rounded font-bold">
+                        Level {user.level}
+                      </span>
+                      <span className="text-xs text-neutral-400">{getLevelBadge(user.level)}</span>
+                    </div>
+                  </div>
+
+                  {/* User Info */}
+                  <div className="flex items-center gap-3">
+                    {user.image && (
+                      <img 
+                        src={user.image} 
+                        alt={user.name || user.email}
+                        className="w-12 h-12 rounded-full"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{user.name || 'No Name'}</p>
+                      <p className="text-xs text-neutral-400 truncate">{user.email}</p>
+                    </div>
+                  </div>
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-neutral-700">
+                    <div>
+                      <p className="text-xs text-neutral-500 mb-1">Watch Time</p>
+                      <p className="text-sm font-medium">
+                        {Math.floor(user.totalWatchMinutes / 60)}h {user.totalWatchMinutes % 60}m
+                      </p>
+                      <p className="text-xs text-neutral-500">{user.totalWatchMinutes} min</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-neutral-500 mb-1">Episodes</p>
+                      <p className="text-sm font-medium">{user.episodeCount}</p>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div>
+                    <div className="flex justify-between text-xs text-neutral-400 mb-2">
+                      <span>Progress to next level</span>
+                      <span>{user.totalWatchMinutes}/{user.nextLevelMinutes}</span>
+                    </div>
+                    <div className="w-full bg-neutral-700 rounded-full h-2">
+                      <div 
+                        className="bg-pink-600 h-2 rounded-full transition-all"
+                        style={{ width: `${progressPercent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Last Active */}
+                  <div className="text-xs text-neutral-500 pt-2 border-t border-neutral-700">
+                    Last active: {user.lastActivity ? formatDate(user.lastActivity) : 'Never'}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

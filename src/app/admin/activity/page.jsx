@@ -68,45 +68,45 @@ export default async function AdminActivityPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Activity Monitor</h1>
-          <p className="text-neutral-400">Real-time watch activity tracking</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Activity Monitor</h1>
+          <p className="text-sm sm:text-base text-neutral-400">Real-time watch activity tracking</p>
         </div>
 
         {/* Activity Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-neutral-800 p-4 rounded-lg border border-neutral-700">
-            <p className="text-sm text-neutral-400">Today</p>
-            <p className="text-2xl font-bold text-pink-500 mt-1">{todayCount}</p>
+            <p className="text-xs sm:text-sm text-neutral-400">Today</p>
+            <p className="text-xl sm:text-2xl font-bold text-pink-500 mt-1">{todayCount}</p>
             <p className="text-xs text-neutral-500 mt-1">watch activities</p>
           </div>
           
           <div className="bg-neutral-800 p-4 rounded-lg border border-neutral-700">
-            <p className="text-sm text-neutral-400">Yesterday</p>
-            <p className="text-2xl font-bold text-blue-500 mt-1">{yesterdayCount}</p>
+            <p className="text-xs sm:text-sm text-neutral-400">Yesterday</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-500 mt-1">{yesterdayCount}</p>
             <p className="text-xs text-neutral-500 mt-1">watch activities</p>
           </div>
           
           <div className="bg-neutral-800 p-4 rounded-lg border border-neutral-700">
-            <p className="text-sm text-neutral-400">This Week</p>
-            <p className="text-2xl font-bold text-purple-500 mt-1">{thisWeekCount}</p>
+            <p className="text-xs sm:text-sm text-neutral-400">This Week</p>
+            <p className="text-xl sm:text-2xl font-bold text-purple-500 mt-1">{thisWeekCount}</p>
             <p className="text-xs text-neutral-500 mt-1">watch activities</p>
           </div>
         </div>
 
         {/* Activity Feed */}
-        <div className="bg-neutral-800 rounded-lg border border-neutral-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">📜 Recent Activity Feed</h2>
-            <span className="text-sm text-neutral-400">
+        <div className="bg-neutral-800 rounded-lg border border-neutral-700 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+            <h2 className="text-lg sm:text-xl font-bold">📜 Recent Activity Feed</h2>
+            <span className="text-xs sm:text-sm text-neutral-400">
               Showing last {recentActivity.length} activities
             </span>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {recentActivity.map((activity, index) => (
               <div
                 key={activity.id}
-                className="flex items-start gap-4 p-4 bg-neutral-900 rounded-lg hover:bg-neutral-700/50 transition"
+                className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-neutral-900 rounded-lg hover:bg-neutral-700/50 transition"
               >
                 {/* Thumbnail */}
                 <div className="flex-shrink-0">
@@ -114,11 +114,11 @@ export default async function AdminActivityPage() {
                     <img
                       src={activity.image}
                       alt={activity.title}
-                      className="w-16 h-16 rounded-lg object-cover"
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-lg bg-neutral-700 flex items-center justify-center">
-                      <span className="text-2xl">🎬</span>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-neutral-700 flex items-center justify-center">
+                      <span className="text-xl sm:text-2xl">🎬</span>
                     </div>
                   )}
                 </div>
@@ -126,15 +126,15 @@ export default async function AdminActivityPage() {
                 {/* Activity Info */}
                 <div className="flex-1 min-w-0">
                   {/* User Info */}
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
                     {activity.user?.image && (
                       <img
                         src={activity.user.image}
                         alt={activity.user.email}
-                        className="w-6 h-6 rounded-full"
+                        className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
                       />
                     )}
-                    <span className="text-sm font-medium text-pink-500">
+                    <span className="text-xs sm:text-sm font-medium text-pink-500 truncate">
                       {activity.user?.email || 'Unknown user'}
                     </span>
                     <span className="text-xs px-2 py-0.5 bg-neutral-700 rounded">
@@ -143,22 +143,22 @@ export default async function AdminActivityPage() {
                   </div>
 
                   {/* Anime/Episode Title */}
-                  <p className="text-sm font-medium text-white mb-1">
+                  <p className="text-xs sm:text-sm font-medium text-white mb-1 line-clamp-2">
                     {activity.episodeId}
                   </p>
 
                   {/* Meta Info */}
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
                     <span className="flex items-center gap-1">
                       🕐 {formatRelativeTime(activity.watchedAt)}
                     </span>
-                    <span>•</span>
-                    <span>{formatTimestamp(activity.watchedAt)}</span>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="hidden sm:inline">{formatTimestamp(activity.watchedAt)}</span>
                     {activity.watchDuration > 0 && (
                       <>
                         <span>•</span>
                         <span className="text-pink-500">
-                          {activity.watchDuration} minutes watched
+                          {activity.watchDuration} min
                         </span>
                       </>
                     )}
@@ -166,7 +166,7 @@ export default async function AdminActivityPage() {
                 </div>
 
                 {/* Activity Number */}
-                <div className="flex-shrink-0 text-right">
+                <div className="flex-shrink-0 text-right hidden sm:block">
                   <span className="text-xs text-neutral-500">#{index + 1}</span>
                 </div>
               </div>

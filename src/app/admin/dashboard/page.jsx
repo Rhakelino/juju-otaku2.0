@@ -131,9 +131,11 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Top Users */}
-        <div className="bg-neutral-800 p-6 rounded-lg border border-neutral-700">
-          <h2 className="text-xl font-bold mb-4">🏆 Top Users by Watch Time</h2>
-          <div className="overflow-x-auto">
+        <div className="bg-neutral-800 p-4 sm:p-6 rounded-lg border border-neutral-700">
+          <h2 className="text-lg sm:text-xl font-bold mb-4">🏆 Top Users by Watch Time</h2>
+          
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-neutral-700">
@@ -163,18 +165,37 @@ export default async function AdminDashboard() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {topUsers.map((user, index) => (
+              <div key={user.email} className="bg-neutral-900 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-neutral-500">#{index + 1}</span>
+                  <span className="bg-pink-600 px-2 py-1 rounded text-xs">
+                    Level {user.level}
+                  </span>
+                </div>
+                <p className="text-sm font-medium mb-1">{user.email}</p>
+                <p className="text-xs text-neutral-400 mb-2">{user.name || '-'}</p>
+                <p className="text-sm text-pink-500 font-medium">
+                  {formatDuration(user.totalWatchMinutes)}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-neutral-800 p-6 rounded-lg border border-neutral-700">
-          <h2 className="text-xl font-bold mb-4">📜 Recent Activity</h2>
+        <div className="bg-neutral-800 p-4 sm:p-6 rounded-lg border border-neutral-700">
+          <h2 className="text-lg sm:text-xl font-bold mb-4">📜 Recent Activity</h2>
           <div className="space-y-3">
             {recentActivity.map((activity) => (
               <div 
                 key={activity.id}
-                className="flex items-start gap-4 p-3 bg-neutral-900 rounded-lg hover:bg-neutral-700/50 transition"
+                className="flex items-start gap-3 sm:gap-4 p-3 bg-neutral-900 rounded-lg hover:bg-neutral-700/50 transition"
               >
-                <div className="flex-shrink-0 w-12 h-12 bg-neutral-700 rounded-lg overflow-hidden">
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-neutral-700 rounded-lg overflow-hidden">
                   {activity.image && (
                     <img 
                       src={activity.image} 
@@ -184,18 +205,18 @@ export default async function AdminDashboard() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-pink-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span className="text-xs sm:text-sm font-medium text-pink-500 truncate">
                       {activity.user?.email || 'Unknown user'}
                     </span>
                     <span className="text-xs text-neutral-500">
                       Level {activity.user?.level || 1}
                     </span>
                   </div>
-                  <p className="text-sm text-neutral-300 truncate">
+                  <p className="text-xs sm:text-sm text-neutral-300 truncate">
                     {activity.title || activity.episodeId}
                   </p>
-                  <div className="flex items-center gap-3 mt-1">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
                     <span className="text-xs text-neutral-500">
                       {formatRelativeTime(activity.watchedAt)}
                     </span>

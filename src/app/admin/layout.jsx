@@ -25,40 +25,40 @@ export default async function AdminLayout({ children }) {
       {/* Admin Navigation */}
       <nav className="bg-neutral-800 border-b border-neutral-700">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🔐</span>
-              <h1 className="text-xl font-bold">Admin Dashboard</h1>
+              <h1 className="text-lg sm:text-xl font-bold">Admin Dashboard</h1>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <Link 
                 href="/" 
                 className="text-sm text-neutral-400 hover:text-white transition"
               >
                 ← Back to Site
               </Link>
-              <span className="text-sm text-neutral-400">{session.email}</span>
+              <span className="text-xs sm:text-sm text-neutral-400 truncate">{session.email}</span>
             </div>
           </div>
           
           {/* Tab Navigation */}
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-2 -mb-2">
             <Link 
               href="/admin/dashboard"
-              className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-700 transition"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-neutral-700 transition whitespace-nowrap"
             >
               📊 Dashboard
             </Link>
             <Link 
               href="/admin/users"
-              className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-700 transition"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-neutral-700 transition whitespace-nowrap"
             >
               👥 Users
             </Link>
             <Link 
               href="/admin/activity"
-              className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-700 transition"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-neutral-700 transition whitespace-nowrap"
             >
               📜 Activity
             </Link>
