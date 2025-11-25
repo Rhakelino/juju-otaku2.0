@@ -19,13 +19,23 @@ function getLevelBadge(level) {
 
 // Helper function untuk get badge icon
 function getBadgeIcon(level) {
-  if (level >= 13) return "👑";
-  if (level >= 10) return "⭐";
-  if (level >= 7) return "💎";
-  if (level >= 5) return "🎓";
-  if (level >= 3) return "⚔️";
-  if (level >= 2) return "👀";
-  return "🌱";
+  const icons = {
+    13: "\u{1F451}", // 👑
+    10: "\u{2B50}",  // ⭐
+    7: "\u{1F48E}",  // 💎
+    5: "\u{1F393}",  // 🎓
+    3: "\u{2694}\u{FE0F}",   // ⚔️
+    2: "\u{1F440}",  // 👀
+    1: "\u{1F331}"   // 🌱
+  };
+  
+  if (level >= 13) return icons[13];
+  if (level >= 10) return icons[10];
+  if (level >= 7) return icons[7];
+  if (level >= 5) return icons[5];
+  if (level >= 3) return icons[3];
+  if (level >= 2) return icons[2];
+  return icons[1];
 }
 
 // Helper function untuk get avatar frame class
@@ -77,23 +87,24 @@ async function DashboardPage() {
   const userData = await prisma.user.findUnique({
     where: { email: session.email },
     select: {
+      id: true,
       name: true,
       email: true,
       image: true,
       totalWatchMinutes: true,
       level: true,
       nextLevelMinutes: true,
-      _count: {
-        select: {
-          watchHistory: true,
-        },
-      },
     },
   });
 
   if (!userData) {
     redirect("/api/auth/signin");
   }
+
+  // Ambil count watch history secara terpisah
+  const watchHistoryCount = await prisma.watchHistory.count({
+    where: { userId: userData.id },
+  });
 
   const { name, email, image, totalWatchMinutes, level, nextLevelMinutes } = userData;
 
@@ -195,7 +206,7 @@ async function DashboardPage() {
             <p className="text-sm text-neutral-400">menit menonton</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-pink-500">{userData._count.watchHistory}</p>
+            <p className="text-2xl font-bold text-pink-500">{watchHistoryCount}</p>
             <p className="text-sm text-neutral-400">episode ditonton</p>
           </div>
           <div className="text-center">
