@@ -39,11 +39,11 @@ function getAvatarFrameClass(level) {
   return "border-4 border-zinc-800";
 }
 
-// Helper function untuk get avatar aura style
-function getAvatarAuraStyle(level) {
-  if (level >= 13) return { background: 'linear-gradient(45deg, #fbbf24, #9333ea, #fbbf24)' };
-  if (level >= 10) return { background: '#fbbf24' };
-  return null;
+// Helper function untuk get avatar aura class
+function getAvatarAuraClass(level) {
+  if (level >= 13) return "bg-gradient-to-r from-yellow-400 via-purple-600 to-yellow-400";
+  if (level >= 10) return "bg-yellow-400";
+  return "";
 }
 
 // Helper function untuk get badge color class
@@ -121,8 +121,7 @@ async function DashboardPage() {
           {/* Aura effect untuk level tinggi */}
           {level >= 10 && (
             <div 
-              className="absolute inset-0 rounded-full blur-xl opacity-60 animate-pulse"
-              style={getAvatarAuraStyle(level)}
+              className={`absolute inset-0 rounded-full blur-xl opacity-60 animate-pulse ${getAvatarAuraClass(level)}`}
             />
           )}
           
@@ -157,7 +156,7 @@ async function DashboardPage() {
             {level >= 7 && (
               <div className="absolute inset-0">
                 <div className="absolute top-1 right-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse"></div>
-                <div className="absolute bottom-1 left-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                <div className="absolute bottom-1 left-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse [animation-delay:500ms]"></div>
               </div>
             )}
           </span>
