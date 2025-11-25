@@ -68,6 +68,12 @@ function WatchPageContent({ params, episodeSlug }) {
   const [isValidNext, setIsValidNext] = useState(false);
   const [animeInfo, setAnimeInfo] = useState(null);
 
+  // State untuk tracking waktu menonton
+  const [watchStartTime, setWatchStartTime] = useState(null);
+  const [accumulatedMinutes, setAccumulatedMinutes] = useState(0);
+  const [showLevelUpNotif, setShowLevelUpNotif] = useState(false);
+  const [newLevel, setNewLevel] = useState(null);
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // useEffect untuk Fetch Data (HANYA FETCH 1)
@@ -173,6 +179,74 @@ function WatchPageContent({ params, episodeSlug }) {
     }
   }, [animeInfo, session, sessionStatus, episodeSlug]);
 
+  // --- useEffect untuk Tracking Waktu Menonton ---
+  useEffect(() => {
+    // Hanya track jika user sudah login dan sedang menonton
+    if (!session || !episodeSlug || !currentStreamUrl) {
+      return;
+    }
+
+    // Set waktu mulai menonton
+    const startTime = Date.now();
+    setWatchStartTime(startTime);
+    setAccumulatedMinutes(0);
+    let localAccumulatedMinutes = 0;
+
+    // Timer: setiap 2 menit, kirim progress ke server
+    const trackingInterval = setInterval(async () => {
+      const minutesWatched = 2; // 2 menit per interval
+
+      try {
+        const response = await fetch('/api/watch-progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            episodeId: episodeSlug,
+            watchDuration: minutesWatched,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localAccumulatedMinutes += minutesWatched;
+          setAccumulatedMinutes(localAccumulatedMinutes);
+          
+          // Tampilkan notifikasi jika naik level
+          if (data.leveledUp) {
+            setNewLevel(data.level);
+            setShowLevelUpNotif(true);
+            setTimeout(() => setShowLevelUpNotif(false), 5000); // Hilang setelah 5 detik
+          }
+          
+          console.log(`Progress tersimpan: +${minutesWatched} menit. Total: ${data.totalWatchMinutes} menit, Level: ${data.level}`);
+        }
+      } catch (err) {
+        console.error("Gagal menyimpan progress:", err);
+      }
+    }, 2 * 60 * 1000); // 2 menit = 120,000 ms
+
+    // Cleanup: hentikan timer saat component unmount atau pindah episode
+    return () => {
+      clearInterval(trackingInterval);
+      
+      // Simpan sisa waktu yang belum tersimpan (jika ada)
+      const timeElapsed = Date.now() - startTime;
+      const remainingMinutes = Math.floor(timeElapsed / 60000) - localAccumulatedMinutes;
+      
+      if (remainingMinutes > 0) {
+        // Send final update (fire and forget)
+        fetch('/api/watch-progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            episodeId: episodeSlug,
+            watchDuration: remainingMinutes,
+          }),
+        }).catch(err => console.error("Gagal menyimpan progress akhir:", err));
+      }
+    };
+  }, [session, episodeSlug, currentStreamUrl]);
+
 
   // --- Sisa kode tidak berubah ---
 
@@ -249,6 +323,25 @@ function WatchPageContent({ params, episodeSlug }) {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Notifikasi Level Up */}
+      {showLevelUpNotif && (
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-yellow-400 via-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg shadow-2xl animate-bounce">
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">🎉</span>
+            <div>
+              <p className="font-bold text-lg flex items-center gap-2">
+                <span>Level Up!</span>
+                {newLevel >= 13 && <span className="text-2xl">👑</span>}
+                {newLevel >= 10 && newLevel < 13 && <span className="text-2xl">⭐</span>}
+                {newLevel >= 7 && newLevel < 10 && <span className="text-2xl">💎</span>}
+                {newLevel >= 5 && newLevel < 7 && <span className="text-2xl">🎓</span>}
+              </p>
+              <p className="text-sm">Sekarang kamu Level {newLevel}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8">
         <ResponsiveBreadcrumb crumbs={breadcrumbs} />
 

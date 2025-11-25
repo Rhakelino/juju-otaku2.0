@@ -25,6 +25,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  // Fitur menit menonton & level
+  totalWatchMinutes Int @default(0)
+  level             Int @default(1)
+  nextLevelMinutes  Int @default(60)
+
   watchHistory  WatchHistory[]
 }
 
@@ -75,6 +80,10 @@ model WatchHistory {
   image     String?  // URL gambar anime
 
   watchedAt DateTime @updatedAt // Waktu terakhir ditonton (otomatis update)
+
+  // Fitur tracking durasi menonton
+  watchDuration     Int @default(0) // Durasi menonton episode ini dalam menit
+  lastWatchPosition Int @default(0) // Posisi terakhir menonton dalam detik (untuk future)
 
   // Mencegah duplikat: satu user hanya punya satu riwayat per episode
   @@unique([userId, episodeId])

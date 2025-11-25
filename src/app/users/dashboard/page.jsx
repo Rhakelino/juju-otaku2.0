@@ -4,6 +4,67 @@ import { AuthUserSession } from "@/app/libs/auth-libs";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import BreadcrumbNavigation from "@/app/components/BreadcrumbNavigation";
+import prisma from "@/app/libs/prisma";
+
+// Helper function untuk get badge berdasarkan level
+function getLevelBadge(level) {
+  if (level >= 13) return "Ota-King";        // 12+ jam (720+ menit) - MAX TIER
+  if (level >= 10) return "Wibu Legend";     // 9-12 jam (540-719 menit)
+  if (level >= 7) return "Wibu Elite";       // 6-9 jam (360-539 menit)
+  if (level >= 5) return "Wibu Master";      // 4-6 jam (240-359 menit)
+  if (level >= 3) return "Wibu Veteran";     // 2-4 jam (120-239 menit)
+  if (level >= 2) return "Wibu Fomo";        // 1-2 jam (60-119 menit)
+  return "Wibu Pemula";                      // 0-1 jam (0-59 menit)
+}
+
+// Helper function untuk get badge icon
+function getBadgeIcon(level) {
+  if (level >= 13) return "👑";
+  if (level >= 10) return "⭐";
+  if (level >= 7) return "💎";
+  if (level >= 5) return "🎓";
+  if (level >= 3) return "⚔️";
+  if (level >= 2) return "👀";
+  return "🌱";
+}
+
+// Helper function untuk get avatar frame class
+function getAvatarFrameClass(level) {
+  if (level >= 13) return "border-4 animate-pulse";
+  if (level >= 10) return "border-4 border-yellow-500 shadow-lg shadow-yellow-500/50";
+  if (level >= 7) return "border-4 border-cyan-400 shadow-lg shadow-cyan-400/50";
+  if (level >= 5) return "border-4 border-purple-600 shadow-md";
+  if (level >= 3) return "border-4 border-blue-500";
+  if (level >= 2) return "border-4 border-yellow-400";
+  return "border-4 border-zinc-800";
+}
+
+// Helper function untuk get avatar aura style
+function getAvatarAuraStyle(level) {
+  if (level >= 13) return { background: 'linear-gradient(45deg, #fbbf24, #9333ea, #fbbf24)' };
+  if (level >= 10) return { background: '#fbbf24' };
+  return null;
+}
+
+// Helper function untuk get badge color class
+function getBadgeColorClass(level) {
+  if (level >= 13) return "bg-gradient-to-r from-yellow-400 via-purple-600 to-yellow-400";
+  if (level >= 10) return "bg-gradient-to-r from-yellow-500 to-orange-500";
+  if (level >= 7) return "bg-gradient-to-r from-cyan-400 to-blue-600";
+  if (level >= 5) return "bg-gradient-to-r from-purple-600 to-purple-800";
+  if (level >= 3) return "bg-gradient-to-r from-blue-500 to-blue-700";
+  if (level >= 2) return "bg-gradient-to-r from-yellow-400 to-orange-500";
+  return "bg-zinc-700";
+}
+
+// Helper function untuk get progress bar class
+function getProgressBarClass(level) {
+  if (level >= 13) return "bg-gradient-to-r from-yellow-400 via-purple-600 to-yellow-400";
+  if (level >= 10) return "bg-gradient-to-r from-yellow-500 to-orange-500";
+  if (level >= 7) return "bg-gradient-to-r from-cyan-400 to-blue-600";
+  if (level >= 5) return "bg-gradient-to-r from-purple-600 to-purple-800";
+  return "bg-gradient-to-r from-pink-600 to-purple-600";
+}
 
 async function DashboardPage() {
   const session = await AuthUserSession();
@@ -12,8 +73,29 @@ async function DashboardPage() {
     redirect("/api/auth/signin");
   }
 
-  // Ambil data user dari sesi
-  const { name, email, image } = session;
+  // Ambil data user lengkap dari database (termasuk stats)
+  const userData = await prisma.user.findUnique({
+    where: { email: session.email },
+    select: {
+      name: true,
+      email: true,
+      image: true,
+      totalWatchMinutes: true,
+      level: true,
+      nextLevelMinutes: true,
+      _count: {
+        select: {
+          watchHistory: true,
+        },
+      },
+    },
+  });
+
+  if (!userData) {
+    redirect("/api/auth/signin");
+  }
+
+  const { name, email, image, totalWatchMinutes, level, nextLevelMinutes } = userData;
 
   const breadcrumbs = [
     { title: 'Dashboard', href: '/users/dashboard' }
@@ -32,27 +114,58 @@ async function DashboardPage() {
         </Link>
       </div>
 
-      {/* 3. Info Profil: Avatar, Nama, dan Badge (warna badge diubah) */}
+      {/* 3. Info Profil: Avatar, Nama, dan Badge */}
       <div className="flex flex-col items-center px-4 pt-4">
-        <Image
-          src={image}
-          alt="Foto Profil"
-          width={100}
-          height={100}
-          className="rounded-full border-4 border-zinc-800" // diubah ke zinc-800
-          priority
-        />
-        <h1 className="text-3xl font-bold text-white mt-4">
+        {/* Avatar dengan frame dan aura dinamis */}
+        <div className="relative">
+          {/* Aura effect untuk level tinggi */}
+          {level >= 10 && (
+            <div 
+              className="absolute inset-0 rounded-full blur-xl opacity-60 animate-pulse"
+              style={getAvatarAuraStyle(level)}
+            />
+          )}
+          
+          {/* Avatar dengan frame dinamis */}
+          <Image
+            src={image}
+            alt="Foto Profil"
+            width={100}
+            height={100}
+            className={`rounded-full relative z-10 ${getAvatarFrameClass(level)}`}
+            priority
+          />
+          
+          {/* Icon badge di pojok avatar */}
+          <div className="absolute -bottom-2 -right-2 z-20 bg-black rounded-full p-2 border-2 border-white shadow-lg">
+            <span className="text-2xl">{getBadgeIcon(level)}</span>
+          </div>
+        </div>
+
+        <h1 className="text-3xl font-bold text-white mt-6">
           {name}
         </h1>
+
+        {/* Badge dengan gradient dan icon */}
         <div className="flex flex-wrap justify-center gap-2 mt-3">
-          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full">
-            Wibu Next Level
+          <span className={`text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg relative overflow-hidden ${getBadgeColorClass(level)}`}>
+            <span className="relative z-10 flex items-center gap-2">
+              <span className="text-lg">{getBadgeIcon(level)}</span>
+              {getLevelBadge(level)}
+            </span>
+            {/* Sparkle effect untuk level tinggi */}
+            {level >= 7 && (
+              <div className="absolute inset-0">
+                <div className="absolute top-1 right-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse"></div>
+                <div className="absolute bottom-1 left-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+              </div>
+            )}
           </span>
-          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full">
-            Lvl. 9999
+
+          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full">
+            Level {level}
           </span>
-          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-1 rounded-full break-all">
+          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full break-all">
             {email}
           </span>
         </div>
@@ -60,19 +173,35 @@ async function DashboardPage() {
 
       {/* 4. Statistik (Ditambah garis pemisah & warna) */}
       <div className="w-full max-w-md mx-auto mt-8 px-4 pt-8 border-t border-zinc-700">
+        {/* Progress Bar menuju Level Berikutnya */}
+        <div className="mb-6 bg-zinc-800 p-4 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-neutral-300">Progress ke Level {level + 1}</span>
+            <span className="text-sm font-bold text-pink-500">
+              {totalWatchMinutes} / {nextLevelMinutes} menit
+            </span>
+          </div>
+          <div className="w-full bg-zinc-700 rounded-full h-3 overflow-hidden">
+            <div 
+              className={`h-full rounded-full transition-all duration-500 ${getProgressBarClass(level)}`}
+              style={{ width: `${Math.min((totalWatchMinutes / nextLevelMinutes) * 100, 100)}%` }}
+            ></div>
+          </div>
+        </div>
+
         <div className="flex justify-around">
           <div className="text-center">
             {/* Angka diberi warna pink */}
-            <p className="text-2xl font-bold text-pink-500">0</p>
+            <p className="text-2xl font-bold text-pink-500">{totalWatchMinutes}</p>
             <p className="text-sm text-neutral-400">menit menonton</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-pink-500">0</p>
-            <p className="text-sm text-neutral-400">jumlah komentar</p>
+            <p className="text-2xl font-bold text-pink-500">{userData._count.watchHistory}</p>
+            <p className="text-sm text-neutral-400">episode ditonton</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-pink-500">0</p>
-            <p className="text-sm text-neutral-400">bulan bergabung</p>
+            <p className="text-2xl font-bold text-pink-500">{level}</p>
+            <p className="text-sm text-neutral-400">level saat ini</p>
           </div>
         </div>
       </div>
