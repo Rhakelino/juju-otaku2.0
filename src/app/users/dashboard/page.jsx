@@ -77,144 +77,150 @@ function getProgressBarClass(level) {
 }
 
 async function DashboardPage() {
-  const session = await AuthUserSession();
+  try {
+    const session = await AuthUserSession();
 
-  if (!session) {
-    redirect("/api/auth/signin");
-  }
+    if (!session) {
+      redirect("/api/auth/signin");
+    }
 
-  // Ambil data user lengkap dari database (termasuk stats)
-  const userData = await prisma.user.findUnique({
-    where: { email: session.email },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      totalWatchMinutes: true,
-      level: true,
-      nextLevelMinutes: true,
-    },
-  });
+    // Ambil data user lengkap dari database (termasuk stats)
+    const userData = await prisma.user.findUnique({
+      where: { email: session.email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        totalWatchMinutes: true,
+        level: true,
+        nextLevelMinutes: true,
+      },
+    });
 
-  if (!userData) {
-    redirect("/api/auth/signin");
-  }
+    if (!userData) {
+      redirect("/api/auth/signin");
+    }
 
-  // Ambil count watch history secara terpisah
-  const watchHistoryCount = await prisma.watchHistory.count({
-    where: { userId: userData.id },
-  });
+    // Ambil count watch history secara terpisah
+    const watchHistoryCount = await prisma.watchHistory.count({
+      where: { userId: userData.id },
+    }).catch(() => 0); // Fallback to 0 if error
 
-  const { name, email, image, totalWatchMinutes, level, nextLevelMinutes } = userData;
+    const { name, email, image, totalWatchMinutes, level, nextLevelMinutes } = userData;
+    
+    // Ensure all values are defined
+    const safeLevel = level ?? 1;
+    const safeTotalMinutes = totalWatchMinutes ?? 0;
+    const safeNextLevelMinutes = nextLevelMinutes ?? 60;
 
-  const breadcrumbs = [
-    { title: 'Dashboard', href: '/users/dashboard' }
-  ];
+    const breadcrumbs = [
+      { title: 'Dashboard', href: '/users/dashboard' }
+    ];
 
-  return (
-    // 1. Latar belakang diubah ke zinc-900
-    <section className="font-sans min-h-screen text-gray-100">
-      <div className="flex items-center justify-between py-8 px-4">
-        <BreadcrumbNavigation crumbs={breadcrumbs} />
-        <Link
-          href="/api/auth/signout"
-          className="border border-red-500 text-red-500 px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition-colors"
-        >
-          Logout
-        </Link>
-      </div>
-
-      {/* 3. Info Profil: Avatar, Nama, dan Badge */}
-      <div className="flex flex-col items-center px-4 pt-4">
-        {/* Avatar dengan frame dan aura dinamis */}
-        <div className="relative">
-          {/* Aura effect untuk level tinggi */}
-          {level >= 10 && (
-            <div 
-              className={`absolute inset-0 rounded-full blur-xl opacity-60 animate-pulse ${getAvatarAuraClass(level)}`}
-            />
-          )}
-          
-          {/* Avatar dengan frame dinamis */}
-          <Image
-            src={image}
-            alt="Foto Profil"
-            width={100}
-            height={100}
-            className={`rounded-full relative z-10 ${getAvatarFrameClass(level)}`}
-            priority
-          />
-          
-          {/* Icon badge di pojok avatar */}
-          <div className="absolute -bottom-2 -right-2 z-20 bg-black rounded-full p-2 border-2 border-white shadow-lg">
-            <span className="text-2xl">{getBadgeIcon(level)}</span>
-          </div>
+    return (
+      // 1. Latar belakang diubah ke zinc-900
+      <section className="font-sans min-h-screen text-gray-100">
+        <div className="flex items-center justify-between py-8 px-4">
+          <BreadcrumbNavigation crumbs={breadcrumbs} />
+          <Link
+            href="/api/auth/signout"
+            className="border border-red-500 text-red-500 px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition-colors"
+          >
+            Logout
+          </Link>
         </div>
 
-        <h1 className="text-3xl font-bold text-white mt-6">
-          {name}
-        </h1>
-
-        {/* Badge dengan gradient dan icon */}
-        <div className="flex flex-wrap justify-center gap-2 mt-3">
-          <span className={`text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg relative overflow-hidden ${getBadgeColorClass(level)}`}>
-            <span className="relative z-10 flex items-center gap-2">
-              <span className="text-lg">{getBadgeIcon(level)}</span>
-              {getLevelBadge(level)}
-            </span>
-            {/* Sparkle effect untuk level tinggi */}
-            {level >= 7 && (
-              <div className="absolute inset-0">
-                <div className="absolute top-1 right-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse"></div>
-                <div className="absolute bottom-1 left-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse [animation-delay:500ms]"></div>
-              </div>
+        {/* 3. Info Profil: Avatar, Nama, dan Badge */}
+        <div className="flex flex-col items-center px-4 pt-4">
+          {/* Avatar dengan frame dan aura dinamis */}
+          <div className="relative">
+            {/* Aura effect untuk level tinggi */}
+            {safeLevel >= 10 && (
+              <div 
+                className={`absolute inset-0 rounded-full blur-xl opacity-60 animate-pulse ${getAvatarAuraClass(safeLevel)}`}
+              />
             )}
-          </span>
+            
+            {/* Avatar dengan frame dinamis */}
+            <Image
+              src={image}
+              alt="Foto Profil"
+              width={100}
+              height={100}
+              className={`rounded-full relative z-10 ${getAvatarFrameClass(safeLevel)}`}
+              priority
+            />
+            
+            {/* Icon badge di pojok avatar */}
+            <div className="absolute -bottom-2 -right-2 z-20 bg-black rounded-full p-2 border-2 border-white shadow-lg">
+              <span className="text-2xl">{getBadgeIcon(safeLevel)}</span>
+            </div>
+          </div>
 
-          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full">
-            Level {level}
-          </span>
-          <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full break-all">
-            {email}
-          </span>
-        </div>
-      </div>
+          <h1 className="text-3xl font-bold text-white mt-6">
+            {name}
+          </h1>
 
-      {/* 4. Statistik (Ditambah garis pemisah & warna) */}
-      <div className="w-full max-w-md mx-auto mt-8 px-4 pt-8 border-t border-zinc-700">
-        {/* Progress Bar menuju Level Berikutnya */}
-        <div className="mb-6 bg-zinc-800 p-4 rounded-lg">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-neutral-300">Progress ke Level {level + 1}</span>
-            <span className="text-sm font-bold text-pink-500">
-              {totalWatchMinutes} / {nextLevelMinutes} menit
+          {/* Badge dengan gradient dan icon */}
+          <div className="flex flex-wrap justify-center gap-2 mt-3">
+            <span className={`text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg relative overflow-hidden ${getBadgeColorClass(safeLevel)}`}>
+              <span className="relative z-10 flex items-center gap-2">
+                <span className="text-lg">{getBadgeIcon(safeLevel)}</span>
+                {getLevelBadge(safeLevel)}
+              </span>
+              {/* Sparkle effect untuk level tinggi */}
+              {safeLevel >= 7 && (
+                <div className="absolute inset-0">
+                  <div className="absolute top-1 right-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse"></div>
+                  <div className="absolute bottom-1 left-2 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse [animation-delay:500ms]"></div>
+                </div>
+              )}
+            </span>
+
+            <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full">
+              Level {safeLevel}
+            </span>
+            <span className="bg-zinc-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full break-all">
+              {email}
             </span>
           </div>
-          <div className="w-full bg-zinc-700 rounded-full h-3 overflow-hidden">
-            <div 
-              className={`h-full rounded-full transition-all duration-500 ${getProgressBarClass(level)}`}
-              style={{ width: `${Math.min((totalWatchMinutes / nextLevelMinutes) * 100, 100)}%` }}
-            ></div>
-          </div>
         </div>
 
-        <div className="flex justify-around">
-          <div className="text-center">
-            {/* Angka diberi warna pink */}
-            <p className="text-2xl font-bold text-pink-500">{totalWatchMinutes}</p>
-            <p className="text-sm text-neutral-400">menit menonton</p>
+        {/* 4. Statistik (Ditambah garis pemisah & warna) */}
+        <div className="w-full max-w-md mx-auto mt-8 px-4 pt-8 border-t border-zinc-700">
+          {/* Progress Bar menuju Level Berikutnya */}
+          <div className="mb-6 bg-zinc-800 p-4 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-neutral-300">Progress ke Level {safeLevel + 1}</span>
+              <span className="text-sm font-bold text-pink-500">
+                {safeTotalMinutes} / {safeNextLevelMinutes} menit
+              </span>
+            </div>
+            <div className="w-full bg-zinc-700 rounded-full h-3 overflow-hidden">
+              <div 
+                className={`h-full rounded-full transition-all duration-500 ${getProgressBarClass(safeLevel)}`}
+                style={{ width: `${Math.min((safeTotalMinutes / safeNextLevelMinutes) * 100, 100)}%` }}
+              ></div>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-pink-500">{watchHistoryCount}</p>
-            <p className="text-sm text-neutral-400">episode ditonton</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-pink-500">{level}</p>
-            <p className="text-sm text-neutral-400">level saat ini</p>
+
+          <div className="flex justify-around">
+            <div className="text-center">
+              {/* Angka diberi warna pink */}
+              <p className="text-2xl font-bold text-pink-500">{safeTotalMinutes}</p>
+              <p className="text-sm text-neutral-400">menit menonton</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-pink-500">{watchHistoryCount}</p>
+              <p className="text-sm text-neutral-400">episode ditonton</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-pink-500">{safeLevel}</p>
+              <p className="text-sm text-neutral-400">level saat ini</p>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* 5. Navigasi Tombol (Menggantikan Tab) */}
       <div className="w-full max-w-md mx-auto mt-8 px-4 flex flex-col sm:flex-row gap-4">
@@ -233,6 +239,11 @@ async function DashboardPage() {
       </div>
     </section>
   );
+  } catch (error) {
+    console.error("Dashboard Error:", error);
+    // Redirect to sign in on any error
+    redirect("/api/auth/signin");
+  }
 }
 
 export default DashboardPage;
