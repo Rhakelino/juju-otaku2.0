@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "JujuOtaku",
+  title: "Kaelnime",
   description: "Web Streaming Anime Sub Indo",
   icons: {
     icon: [
