@@ -1,59 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Juju Otaku 2.0
 
-## Getting Started
+Platform streaming anime modern yang dibangun dengan Next.js dan fitur authentication lengkap.
 
-First, run the development server:
+## 🚀 Teknologi
+
+- **Framework**: [Next.js](https://nextjs.org)
+- **Authentication**: NextAuth.js
+- **Database**: PostgreSQL/MySQL (optional)
+- **Font Optimization**: [Geist](https://vercel.com/font) via `next/font`
+- **Package Manager**: npm/yarn/pnpm/bun
+
+## 📚 API & Resources
+
+**Anime API**: [https://www.sankavollerei.com/anime](https://www.sankavollerei.com/anime)
+
+## 🔗 Project History
+
+- **Original Source**: [Rhakelino/juju-otaku2.0](https://github.com/Rhakelino/juju-otaku2.0)
+- **Latest Version**: [SankaVollereii/juju-otaku2.0](https://github.com/SankaVollereii/juju-otaku2.0)
+
+## 📦 Instalasi
+
+```bash
+# Clone repository
+git clone https://github.com/SankaVollereii/juju-otaku2.0.git
+cd juju-otaku2.0
+
+# Install dependencies
+npm install
+# atau
+yarn install
+# atau
+pnpm install
+# atau
+bun install
+```
+
+## ⚙️ Environment Variables
+
+Buat file `.env.local` di root project dan isi dengan variabel berikut:
+
+```env
+# API Configuration
+NEXT_PUBLIC_API_URL=your_api_url
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXT_AUTH_SECRET=your_secret_key
+
+# Database (Optional)
+USE_DATABASE=false
+DATABASE_URL=your_database_url
+
+# OAuth Providers
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+```
+
+## 🛠️ Development
+
+Jalankan development server:
 
 ```bash
 npm run dev
-# or
+# atau
 yarn dev
-# or
+# atau
 pnpm dev
-# or
+# atau
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) di browser untuk melihat hasilnya.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Anda dapat mulai mengedit halaman dengan memodifikasi `app/page.js`. Halaman akan otomatis update saat Anda mengedit file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Build & Production
 
-## Learn More
+```bash
+# Build untuk production
+npm run build
 
-To learn more about Next.js, take a look at the following resources:
+# Menjalankan production server
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📖 Learn More
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Untuk mempelajari lebih lanjut tentang Next.js:
 
-## Deploy on Vercel
+- **[Next.js Documentation](https://nextjs.org/docs)** - Pelajari fitur dan API Next.js
+- **[Learn Next.js](https://nextjs.org/learn)** - Tutorial interaktif Next.js
+- **[Next.js GitHub](https://github.com/vercel/next.js)** - Feedback dan kontribusi Anda sangat diterima!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Live Deployment
-
-### Vercel
-
-Host your own instance of <a href="https://juju-otaku2-0.vercel.app">juju-otaku2.0</a>  on vercel
-
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SankaVollereii/juju-otaku2.0&env=NEXT_PUBLIC_API_URL,NEXTAUTH_URL,NEXT_AUTH_SECRET,USE_DATABASE,DATABASE_URL,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET)
-
----
-
-### 💻 Source Code
-Api Anime: **[https://www.sankavollerei.com/anime](https://www.sankavollerei.com/anime)**
-
-Source code: **[https://github.com/Rhakelino/juju-otaku2.0](https://github.com/Rhakelino/juju-otaku2.0)**
-
-Recode By: **[https://github.com/SankaVollereii/juju-otaku2.0](https://github.com/SankaVollereii/juju-otaku2.0)**
-
----
+Untuk panduan deployment Next.js, lihat [dokumentasi deployment Next.js](https://nextjs.org/docs/app/building-your-application/deploying).
 
 
+## 🤝 Contributing
 
+Open Kontribusi, issues, dan feature requests!
 
+## 👨‍💻 Credits
+
+**Latest Maintainer**: [SankaVollerei](https://github.com/SankaVollereii)
+
+Special thanks to [Rhakelino](https://github.com/Rhakelino) untuk versi original.
