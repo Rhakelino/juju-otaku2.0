@@ -21,6 +21,9 @@ const nextConfig = {
                 hostname: "i2.wp.com"
             },
             {
+                hostname: "v0.animasu.app"
+            },
+            {
                 hostname: "i0.wp.com"
             },
             {
