@@ -48,6 +48,3 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
 }
 
 export default AnimeCard;
-
-
-kirim fulllnya ciba
