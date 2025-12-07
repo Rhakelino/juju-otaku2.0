@@ -15,6 +15,7 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
           <Image
             src={image} 
             alt={title}
+            unoptimized={true}
             fill
             priority={priority}
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
