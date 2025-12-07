@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+c/** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
         remotePatterns: [
@@ -22,6 +22,9 @@ const nextConfig = {
             },
             {
                 hostname: "v0.animasu.app"
+            },
+            {
+                hostname: "v1.animasu.top"
             },
             {
                 hostname: "i0.wp.com"
